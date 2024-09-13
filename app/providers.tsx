@@ -1,6 +1,7 @@
 'use client'
 import AppWalletProvider from '@/components/WalletProvider'
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
+import { transparentize } from 'polished'
 import React, { ReactNode } from 'react'
 
 const theme = extendTheme({
@@ -9,7 +10,7 @@ const theme = extendTheme({
         useSystemColorMode: false
     },
     colors: {
-        bg1: '#21242980',
+        bg1: '#212429',
         bg2: '#1b1b1b',
 
         text: '#f8f8f8',
@@ -21,7 +22,7 @@ const theme = extendTheme({
     styles: {
         global: {
             body: {
-                bg: 'bg1'
+                bg: transparentize(0.5, '#212429')
             }
         }
     }

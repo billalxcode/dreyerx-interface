@@ -1,62 +1,92 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import CurrencyWrapper, { CurrencyLabelWrapper } from './wrapper'
-import { Flex, Icon, Input, Text, useToken } from '@chakra-ui/react'
+import { Flex, Icon, Image, Input, Text, useDisclosure, useToken } from '@chakra-ui/react'
 import Selector from '../Selector'
 import { transparentize } from 'polished'
 import { FaChevronDown } from 'react-icons/fa6'
 import Button from '../Button'
+import CurrencySearch from '../CurrencySearch'
+import TokenInterface from '@/interface/token'
+import { formatUnits } from 'viem'
 
 export default function CurrencyInput(props: {
-    label: string
+    label: string,
+    balance: bigint,
+    onSelectToken: (data: TokenInterface) => void
 }) {
     const [text, border] = useToken('colors', ['text', 'border'])
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
+    const [token, setToken] = useState<TokenInterface | undefined>()
+
+    const onSelectToken = (data: TokenInterface) => {
+        setToken(data)
+        props.onSelectToken(data)
+        onClose()
+    }
 
     return (
-        <CurrencyWrapper>
-            <CurrencyLabelWrapper>
-                <Text fontSize={'12px'}>{props.label}</Text>
-            </CurrencyLabelWrapper>
-            <Flex
-                flexDirection={'row-reverse'}
-                gap={2}
-            >
-                <Selector>
-                    {/* <Image
-                        width={'24px'}
-                        height={'24px'}
-                        src='https://github.com/dreyerx-swap/assets/blob/main/tokenlist/0xB926cB065726433791b4242F1aca8326808A9491/logo.png?raw=true'
-                    /> */}
-                    <Text
-                        color={transparentize(0.3, text)}
-                        fontWeight={'semibold'}
-                        fontSize={'12px'}
-                    >
-                        Select Token
-                    </Text>
+        <>
+            <CurrencyWrapper>
+                <CurrencyLabelWrapper>
+                    <Text fontSize={'12px'}>{props.label}</Text>
+                    <Text fontSize={'12px'}>Balance: {formatUnits(props?.balance, token?.decimals ?? 18).substring(0, 7)} {token?.symbol}</Text>
+                </CurrencyLabelWrapper>
+                <Flex
+                    flexDirection={'row-reverse'}
+                    gap={2}
+                >
+                    <Selector onClick={onOpen}>
+                        {
+                            token ? (
+                                <Image
+                                    src={token.logoURI}
+                                    alt={token.symbol}
+                                    width={'24px'}
+                                    height={'24px'}
+                                    borderRadius={'full'}
+                                />
+                            ) : null
+                        }
+                        <Text
+                            color={transparentize(0.3, text)}
+                            fontWeight={'semibold'}
+                            fontSize={'12px'}
+                        >
+                            {token ? token.symbol : 'Select Token'}
+                        </Text>
 
-                    <Icon as={FaChevronDown} width={'10px'} height={'10px'} />
-                </Selector>
-                <Button flex={1}>
-                    <Text fontSize={'12px'}>Max</Text>
-                </Button>
-                <Input
-                    placeholder='0.00'
-                    textAlign={'left'}
-                    borderWidth={1}
-                    color={text}
-                    flex={3}
-                    borderColor={transparentize(0.9, border)}
+                        <Icon as={FaChevronDown} width={'10px'} height={'10px'} />
+                    </Selector>
+                    <Button flex={1} backgroundColor={'bg1'}>
+                        <Text fontSize={'12px'}>Max</Text>
+                    </Button>
+                    <Input
+                        placeholder='0.00'
+                        textAlign={'left'}
+                        borderWidth={1}
+                        color={text}
+                        flex={3}
+                        borderColor={transparentize(0.9, border)}
 
-                    _hover={{
-                        borderColor: transparentize(0.8, border)
-                    }}
+                        _hover={{
+                            borderColor: transparentize(0.8, border)
+                        }}
 
-                    _focusVisible={{
-                        borderColor: transparentize(0.8, border)
-                    }}
-                />
-            </Flex>
-        </CurrencyWrapper>
+                        _focusVisible={{
+                            borderColor: transparentize(0.8, border)
+                        }}
+                    />
+                </Flex>
+            </CurrencyWrapper>
+
+            <CurrencySearch
+                key={`currency-search-${props.label.trim()}`}
+                isOpen={isOpen}
+                onClose={onClose}
+                onSelect={onSelectToken}
+            />
+        </>
     )
 }

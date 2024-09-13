@@ -19,7 +19,7 @@ export default function Card(props: CardProps) {
             borderWidth={1}
             borderColor={transparentize(0.9, border)}
             borderRadius={10}
-        >
+            >
             {props.children}
         </Flex>
     )

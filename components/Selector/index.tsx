@@ -4,7 +4,8 @@ import { transparentize } from 'polished'
 import React, { ReactNode } from 'react'
 
 export default function Selector(props: {
-  children: ReactNode
+  children: ReactNode,
+  onClick: () => void
 }) {
   const [border] = useToken('colors', ['border'])
 
@@ -21,6 +22,7 @@ export default function Selector(props: {
       borderRadius={10}
       gap={3}
       transition={'all .2s ease-in-out'}
+      onClick={props.onClick}
       
       _hover={{
         cursor: 'pointer',
