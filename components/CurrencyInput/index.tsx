@@ -13,7 +13,11 @@ import { formatUnits } from 'viem'
 export default function CurrencyInput(props: {
     label: string,
     balance: bigint,
-    onSelectToken: (data: TokenInterface) => void
+    typedValue: string | undefined,
+    showMaxButton: boolean,
+    onUserInput: (value: string) => void,
+    onSelectToken: (data: TokenInterface) => void,
+    onMaxInput?: () => void
 }) {
     const [text, border] = useToken('colors', ['text', 'border'])
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -59,9 +63,13 @@ export default function CurrencyInput(props: {
 
                         <Icon as={FaChevronDown} width={'10px'} height={'10px'} />
                     </Selector>
-                    <Button flex={1} backgroundColor={'bg1'}>
-                        <Text fontSize={'12px'}>Max</Text>
-                    </Button>
+                    {
+                        props.showMaxButton ? (
+                            <Button flex={1} backgroundColor={'bg1'} onClick={props.onMaxInput}>
+                                <Text fontSize={'12px'}>Max</Text>
+                            </Button>
+                        ) : null
+                    }
                     <Input
                         placeholder='0.00'
                         textAlign={'left'}
@@ -69,7 +77,8 @@ export default function CurrencyInput(props: {
                         color={text}
                         flex={3}
                         borderColor={transparentize(0.9, border)}
-
+                        value={props.typedValue}
+                        onChange={(event) => props.onUserInput(event.target.value)}
                         _hover={{
                             borderColor: transparentize(0.8, border)
                         }}

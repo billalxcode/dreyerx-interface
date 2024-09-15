@@ -1,5 +1,6 @@
 'use client'
-import AppWalletProvider from '@/components/WalletProvider'
+import StoreProvider from '@/components/Provider/StoreProvider'
+import AppWalletProvider from '@/components/Provider/WalletProvider'
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { transparentize } from 'polished'
 import React, { ReactNode } from 'react'
@@ -14,7 +15,7 @@ const theme = extendTheme({
         bg2: '#1b1b1b',
 
         text: '#f8f8f8',
-        
+
         primary1: '#7a22c9',
 
         border: '#ffffff'
@@ -34,7 +35,9 @@ export default function AppProvider(props: {
     return (
         <ChakraProvider theme={theme}>
             <AppWalletProvider>
-                {props.children}
+                <StoreProvider>
+                    {props.children}
+                </StoreProvider>
             </AppWalletProvider>
         </ChakraProvider>
     )

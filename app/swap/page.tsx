@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import CurrencyInput from '@/components/CurrencyInput';
@@ -9,36 +9,49 @@ import SwapPoolTabs from '@/components/SwapPoolTabs';
 import { Box, Divider, Flex, Icon } from '@chakra-ui/react';
 import { FaArrowDown } from 'react-icons/fa6';
 import SwapButton from '@/components/Swap/button';
-import TokenInterface from '@/interface/token';
 import { useAccount, useBalance } from 'wagmi';
+import { Field } from '@/state/swap/actions';
+import { useSwapActionHandlers, useSwapState } from '@/state/swap/hooks';
+import { formatUnits } from 'viem';
 
 export default function Swap() {
+    const {
+        onTokenSelection,
+        onUserInput
+    } = useSwapActionHandlers()
     const { address } = useAccount()
-    const [tokenA, setTokenA] = useState<TokenInterface>()
-    const [tokenB, setTokenB] = useState<TokenInterface>()
+    const { field, inputToken, outputToken, typedValue } = useSwapState()
+
     const [balanceA, setBalanceA] = useState<bigint | number>(0)
     const [balanceB, setBalanceB] = useState<bigint | number>(0)
 
-    const { data: balanceDataA } = useBalance({
+    const { data: balanceInput } = useBalance({
         address,
-        token: tokenA ? tokenA.address as `0x${string}` : undefined,
-        enabled: false
+        token: inputToken ? inputToken.address as `0x${string}` : undefined
     })
 
-    const { data: balanceDataB } = useBalance({
+    const { data: balanceOutput } = useBalance({
         address,
-        token: tokenB ? tokenB.address as `0x${string}` : undefined,
-        enabled: false
+        token: outputToken ? outputToken.address as `0x${string}` : undefined
     })
+
+    const formattedAmounts = {
+        [field]: typedValue
+    }
 
     useEffect(() => {
-        if (balanceDataA) {
-            setBalanceA(balanceDataA.value)
+        if (balanceInput) {
+            setBalanceA(balanceInput.value)
         }
-        if (balanceDataB) {
-            setBalanceB(balanceDataB.value)
+        if (balanceOutput) {
+            setBalanceB(balanceOutput.value)
         }
-    }, [balanceDataA, balanceDataB])
+    }, [balanceInput, balanceOutput])
+
+    const handleMaxInput = useCallback(() => {
+        onUserInput(Field.INPUT, formatUnits(BigInt(balanceA), inputToken?.decimals ?? 18))
+    }, [balanceA, onUserInput, inputToken])
+
     return (
         <Flex
             flexDirection={'column'}
@@ -55,8 +68,12 @@ export default function Swap() {
                     <Card direction='column' width={'450px'} gap={3}>
                         <CurrencyInput
                             label="You're Selling"
-                            balance={tokenA ? balanceA : 0}
-                            onSelectToken={setTokenA}
+                            typedValue={formattedAmounts[Field.INPUT]}
+                            showMaxButton={true}
+                            balance={inputToken ? BigInt(balanceA) : BigInt(0)}
+                            onUserInput={(value) => onUserInput(Field.INPUT, value)}
+                            onSelectToken={(data) => onTokenSelection(Field.INPUT, data)}
+                            onMaxInput={handleMaxInput}
                         />
 
                         <Flex alignItems={'center'} px={3} width={'full'}>
@@ -68,8 +85,11 @@ export default function Swap() {
                         </Flex>
                         <CurrencyInput
                             label="You're Buying"
-                            balance={tokenB ? balanceB : 0}
-                            onSelectToken={setTokenB}
+                            typedValue={formattedAmounts[Field.OUTPUT]}
+                            showMaxButton={false}
+                            balance={outputToken ? BigInt(balanceB) : BigInt(0)}
+                            onUserInput={(value) => onUserInput(Field.OUTPUT, value)}
+                            onSelectToken={(data) => onTokenSelection(Field.OUTPUT, data)}
                         />
 
                         <Box px={3} w={'full'}>
