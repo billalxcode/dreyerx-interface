@@ -3,6 +3,8 @@ import { AppDispatch, RootState } from "../store";
 import { Field, selectToken, typeInput } from "./actions";
 import { useCallback } from "react";
 import TokenInterface from "@/interface/token";
+import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount } from "@dreyerxswap/v2-sdk";
+import { parseUnits } from "viem";
 
 export function useSwapState(): RootState['swap'] {
     return useSelector<RootState, RootState['swap']>(state => state.swap)
@@ -26,4 +28,35 @@ export function useSwapActionHandlers(): {
         onTokenSelection,
         onUserInput
     }
+}
+
+export function useSwapInfo() {
+    
+}
+
+export function tryParseAmount(
+    value?: string,
+    token?: TokenInterface
+): CurrencyAmount | undefined {
+    if (!value || !token) {
+        return undefined
+    }
+
+    try {
+        const tokenObject = new Token(
+            ChainId.MAINNET,
+            token.address,
+            token.decimals,
+            token.symbol,
+            token.name
+        )
+        const typedValueParsed = parseUnits(value, token.decimals).toString()
+        if (typedValueParsed !== '0') {
+            return new TokenAmount(tokenObject, JSBI.BigInt(typedValueParsed))
+        }
+    } catch (error) {
+        console.debug(`Failed to parse input amount: ${value}`, error)
+    }
+
+    return undefined
 }

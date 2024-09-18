@@ -6,13 +6,15 @@ import CurrencyInput from '@/components/CurrencyInput';
 import Header from '@/components/Header';
 import Wrapper from '@/components/Swap/wrapper';
 import SwapPoolTabs from '@/components/SwapPoolTabs';
-import { Box, Divider, Flex, Icon } from '@chakra-ui/react';
+import { Divider, Flex, Icon } from '@chakra-ui/react';
 import { FaArrowDown } from 'react-icons/fa6';
 import SwapButton from '@/components/Swap/button';
 import { useAccount, useBalance } from 'wagmi';
 import { Field } from '@/state/swap/actions';
 import { useSwapActionHandlers, useSwapState } from '@/state/swap/hooks';
 import { formatUnits } from 'viem';
+import { useTrade } from '@/hooks/useTrade';
+import { TradePrice } from '@/components/Swap/trade';
 
 export default function Swap() {
     const {
@@ -21,6 +23,8 @@ export default function Swap() {
     } = useSwapActionHandlers()
     const { address } = useAccount()
     const { field, inputToken, outputToken, typedValue } = useSwapState()
+
+    const { trade } = useTrade()
 
     const [balanceA, setBalanceA] = useState<bigint | number>(0)
     const [balanceB, setBalanceB] = useState<bigint | number>(0)
@@ -92,9 +96,12 @@ export default function Swap() {
                             onSelectToken={(data) => onTokenSelection(Field.OUTPUT, data)}
                         />
 
-                        <Box px={3} w={'full'}>
-                            <SwapButton />
-                        </Box>
+                        {
+                            trade !== null ? (
+                                <TradePrice trade={trade} />
+                            ) : null
+                        }
+                        <SwapButton />
                     </Card>
                 </Flex>
             </Wrapper>
