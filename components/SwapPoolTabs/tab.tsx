@@ -1,20 +1,25 @@
 'use client'
 import { Link, useToken } from '@chakra-ui/react'
+import { usePathname } from 'next/navigation'
 import { transparentize } from 'polished'
 import React from 'react'
 
 export default function TabItem(props: {
   text: string,
   href: string,
-  active?: boolean
+  isActive?: boolean,
+  isDisabled?: boolean
 }) {
-  const [text, primary1] = useToken('colors', ['text', 'primary1'])
+  const pathname = usePathname()
 
-  const color = props.active == true ? transparentize(0.2, primary1) : transparentize(0.5, text)
+  const [text, primary1] = useToken('colors', ['text', 'primary1'])
+  const isActive = props.href === pathname
+
+  const color = isActive == true ? primary1 : transparentize(0.5, text)
 
   return (
     <Link
-      href={props.href}
+      href={props.isDisabled ? '#' : props.href}
       color={color}
 
       _hover={{
