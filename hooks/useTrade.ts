@@ -85,7 +85,7 @@ export function useTrade(
                 tradeAmountIn,
                 tokenB
             )
-
+            
             setTrade(trades[0])
         } catch (error) {
             console.log(`Can't fetch pair and price,`, error)
@@ -95,6 +95,9 @@ export function useTrade(
     useEffect(() => {
         if (inputToken && outputToken) {
             fetchPairAndPrice()
+        } else {
+            setTrade(null)
+            setPair(null)
         }
     }, [inputToken, outputToken, fetchPairAndPrice])
 

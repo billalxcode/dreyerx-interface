@@ -15,6 +15,9 @@ import { useSwapActionHandlers, useSwapState } from '@/state/swap/hooks';
 import { formatUnits } from 'viem';
 import { useTrade } from '@/hooks/useTrade';
 import { TradePrice } from '@/components/Swap/trade';
+import SwapInfo from '@/components/Swap/info';
+import { useApproval } from '@/hooks/useApproval';
+import { ROUTER_ADDRESS } from '@/constants';
 
 export default function Swap() {
     const {
@@ -25,6 +28,9 @@ export default function Swap() {
     const { field, inputToken, outputToken, typedValue } = useSwapState()
 
     const { trade } = useTrade()
+    const {
+        approvalState
+    } = useApproval(inputToken ?? undefined, address?.toString() ?? undefined, ROUTER_ADDRESS)
 
     const [balanceA, setBalanceA] = useState<bigint | number>(0)
     const [balanceB, setBalanceB] = useState<bigint | number>(0)
@@ -71,7 +77,7 @@ export default function Swap() {
 
                     <Card direction='column' width={'450px'} gap={3}>
                         <CurrencyInput
-                            label="You're Selling"
+                            field={Field.INPUT}
                             typedValue={formattedAmounts[Field.INPUT]}
                             showMaxButton={true}
                             balance={inputToken ? BigInt(balanceA) : BigInt(0)}
@@ -88,8 +94,8 @@ export default function Swap() {
                             <Divider flex={1} />
                         </Flex>
                         <CurrencyInput
-                            label="You're Buying"
-                            typedValue={formattedAmounts[Field.OUTPUT]}
+                            field={Field.OUTPUT}
+                            typedValue={trade?.outputAmount.toSignificant(6) ?? '0'}
                             showMaxButton={false}
                             balance={outputToken ? BigInt(balanceB) : BigInt(0)}
                             onUserInput={(value) => onUserInput(Field.OUTPUT, value)}
@@ -97,12 +103,21 @@ export default function Swap() {
                         />
 
                         {
-                            trade !== null ? (
+                            trade !== null && typeof trade !== 'undefined' ? (
                                 <TradePrice trade={trade} />
                             ) : null
                         }
-                        <SwapButton />
+                        <SwapButton
+                            trade={trade}
+                            approvalState={approvalState}
+                        />
                     </Card>
+
+                    {
+                        trade !== null && typeof trade !== 'undefined' ? (
+                            <SwapInfo trade={trade} />
+                        ) : null
+                    }
                 </Flex>
             </Wrapper>
         </Flex>

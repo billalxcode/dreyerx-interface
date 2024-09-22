@@ -7,7 +7,8 @@ export interface SwapState {
     typedValue: string | undefined,
     inputToken: TokenInterface | undefined,
     outputToken: TokenInterface | undefined,
-    recipient: string | null
+    recipient: string | null,
+    tx: string | null
 }
 
 const initialState: SwapState = {
@@ -15,7 +16,8 @@ const initialState: SwapState = {
     typedValue: '',
     inputToken: undefined,
     outputToken: undefined,
-    recipient: ''
+    recipient: '',
+    tx: ''
 }
 
 const swapReducer = createReducer(initialState, builder => {
@@ -23,24 +25,32 @@ const swapReducer = createReducer(initialState, builder => {
         const { field, token } = action.payload
 
         if (field === Field.INPUT) {
-            state.inputToken = token
+            if (state.outputToken && state.outputToken.address === token.address) {
+                state.inputToken = undefined;
+            } else {
+                state.inputToken = token;
+            }
         }
         if (field === Field.OUTPUT) {
-            state.outputToken = token
+            if (state.inputToken && state.inputToken.address === token.address) {
+                state.outputToken = undefined;
+            } else {
+                state.outputToken = token;
+            }
         }
     })
-    .addCase(typeInput, (state, action) => {
-        const { field, typedValue } = action.payload
-        
-        return {
-            ...state,
-            field,
-            typedValue
-        }
-    })
-    .addCase(setRecipient, (state, action) => {
-        state.recipient = action.payload.recipient
-    })
+        .addCase(typeInput, (state, action) => {
+            const { field, typedValue } = action.payload
+
+            return {
+                ...state,
+                field,
+                typedValue
+            }
+        })
+        .addCase(setRecipient, (state, action) => {
+            state.recipient = action.payload.recipient
+        })
 })
 
 export default swapReducer

@@ -10,6 +10,7 @@ import TokenInterface from '@/interface/token'
 
 export default function CurrencySearch(props: {
   isOpen: boolean,
+  key: string,
   onClose: () => void,
   onSelect: (data: TokenInterface) => void
 }) {
@@ -37,7 +38,7 @@ export default function CurrencySearch(props: {
             borderColor: transparentize(0.8, border)
           }}
         />
-        <CurrencySearchList scroll={SwapTokenList.tokens.length > 10}>
+        <CurrencySearchList scroll={SwapTokenList.tokens.length > 10} key={`currency-search-list-${props.key}`}>
           {
             SwapTokenList.tokens.map((tokenlist, index) => {
               return (

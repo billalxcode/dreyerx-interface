@@ -17,20 +17,19 @@ export default function Button(props: ButtonProps) {
         <ChakraButton
             width={props.width}
             backgroundColor={props.transparent ? 'transparent' : backgroundColor}
-            borderWidth={props.transparent ? 0 : 1}
+            borderWidth={props.transparent ? 0 : (props.borderWidth ?? 1)}
             borderColor={transparentize(0.9, border)}
             transition={'all .2s ease-in-out'}
             isLoading={props.isLoading}
 
             _hover={{
-                cursor: 'pointer',
-                // backgroundColor: darken(0.1, backgroundColor),
-                borderColor: transparentize(0.9, border)
+                cursor: props.isDisabled ? 'auto' : 'pointer'
+            }}
+            _active={{
+                backgroundColor: props.isDisabled ? backgroundColor : transparentize(0.2, backgroundColor)
             }}
             _focusVisible={{
-                cursor: 'pointer',
-                // backgroundColor: darken(0.1, backgroundColor),
-                borderColor: transparentize(0.9, border)
+                cursor: props.isDisabled ? 'auto' : 'pointer',
             }}
 
             onClick={props.onClick}

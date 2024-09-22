@@ -9,11 +9,12 @@ import Button from '../Button'
 import CurrencySearch from '../CurrencySearch'
 import TokenInterface from '@/interface/token'
 import { formatUnits } from 'viem'
+import { Field } from '@/state/swap/actions'
 
 export default function CurrencyInput(props: {
-    label: string,
     balance: bigint,
     typedValue: string | undefined,
+    field: Field,
     showMaxButton: boolean,
     onUserInput: (value: string) => void,
     onSelectToken: (data: TokenInterface) => void,
@@ -23,6 +24,7 @@ export default function CurrencyInput(props: {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     const [token, setToken] = useState<TokenInterface | undefined>()
+    const label = props.field === Field.INPUT ? "You're Selling" : "You're buying"
 
     const onSelectToken = (data: TokenInterface) => {
         setToken(data)
@@ -34,7 +36,7 @@ export default function CurrencyInput(props: {
         <>
             <CurrencyWrapper>
                 <CurrencyLabelWrapper>
-                    <Text fontSize={'12px'}>{props.label}</Text>
+                    <Text fontSize={'12px'}>{label}</Text>
                     <Text fontSize={'12px'}>Balance: {formatUnits(props?.balance, token?.decimals ?? 18).substring(0, 7)} {token?.symbol}</Text>
                 </CurrencyLabelWrapper>
                 <Flex
@@ -91,7 +93,7 @@ export default function CurrencyInput(props: {
             </CurrencyWrapper>
 
             <CurrencySearch
-                key={`currency-search-${props.label.trim()}`}
+                key={`currency-search-${label.trim()}`}
                 isOpen={isOpen}
                 onClose={onClose}
                 onSelect={onSelectToken}

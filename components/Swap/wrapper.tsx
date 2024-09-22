@@ -10,6 +10,7 @@ export default function Wrapper(props: {
         flexDirection={'column'}
         align={'center'}
         marginTop={10}
+        marginBottom={10}
     >
         {
             props.children
