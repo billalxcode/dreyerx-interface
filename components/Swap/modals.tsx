@@ -1,4 +1,4 @@
-import React, { useEffect, useState }  from 'react'
+import React, { useEffect, useState } from 'react'
 import { ModalWrapper } from '../Modal/wrapper'
 import { Flex, Link, Spinner, Text, useToken } from '@chakra-ui/react'
 import { SwapButtonState } from './button'
@@ -21,7 +21,7 @@ export function ModalTransactionSubmitted(props: {
             align={'center'}
             marginY={10}
         >
-            
+
             <FaCircleCheck size={80} color={bgSuccess} />
 
             <Flex
@@ -38,8 +38,9 @@ export function ModalTransactionSubmitted(props: {
                 </Text>
 
                 <Link
-                href={`${DREYERX_EXPLORER_URL}/tx/${props.tx}`}
+                    href={`${DREYERX_EXPLORER_URL}/tx/${props.tx}`}
                     fontSize={'10px'}
+                    target={'_blank'}
                     color={transparentize(0.5, text)}
                 >
                     View on Explorer
@@ -67,7 +68,7 @@ export function ModalTransactionLoading(props: {
             const inputSymbol = props.trade ? props.trade.inputAmount.currency.symbol : 'UNKNOWN'
             const outputValue = props.trade ? props.trade.outputAmount.toSignificant(6) : '0'
             const outputSymbol = props.trade ? props.trade.outputAmount.currency.symbol : 'UNKNOWN'
-        
+
             setLabel(`Swapping ${inputValue} ${inputSymbol} for ${outputValue} ${outputSymbol}`)
         } else {
             if (wrapType === WrapType.WRAP) {
@@ -146,7 +147,7 @@ export function ModalStateError(props: {
                     fontWeight={'semibold'}
                     fontSize={'14px'}
                 >
-                    { props.reason }
+                    {props.reason}
                 </Text>
             </Flex>
         </Flex>
