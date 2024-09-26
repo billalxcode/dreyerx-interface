@@ -10,7 +10,7 @@ import { transparentize } from 'polished'
 import { useSwapState } from '@/state/swap/hooks'
 import { SwapCallbackState, useSwapCallback } from '@/hooks/useSwapCallback'
 import { ModalState } from './modals'
-import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback'
+import { useWrapCallback, WrapCallbackState, WrapType } from '@/hooks/useWrapCallback'
 
 export enum SwapButtonState {
     UNKNOWN = 'unknown',
@@ -39,9 +39,11 @@ export default function SwapButton(props: {
     )
 
     const {
+        state: wrapState,
         callback: wrapCallback,
         errorMessage: wrapErrorMessage,
-        wrapType
+        wrapType,
+        tx: wrapTx
     } = useWrapCallback()
     
     const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
@@ -75,9 +77,11 @@ export default function SwapButton(props: {
         if (state === SwapButtonState.LOADING) {
             if (!isSwapPending && swapState === SwapCallbackState.SUBMITTED && swapTx) {
                 setState(SwapButtonState.SUBMITTED)
-            }
+            } else if (wrapState === WrapCallbackState.SUBMITTED) [
+                setState(SwapButtonState.SUBMITTED)
+            ]
         }
-    }, [state, swapState, isSwapPending, swapTx])
+    }, [state, swapState, isSwapPending, swapTx, wrapState])
 
     const handleSwap = useCallback(async () => {
         setState(SwapButtonState.LOADING)
@@ -203,7 +207,7 @@ export default function SwapButton(props: {
                     isOpen={isModalOpen}
                     onClose={handleOnModalClose}
                     state={state}
-                    data={swapTx}
+                    data={isWrapToken ? wrapTx : swapTx}
                 />
             </>
         )
