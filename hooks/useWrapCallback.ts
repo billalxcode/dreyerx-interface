@@ -14,10 +14,18 @@ export enum WrapType {
     UNWRAP
 }
 
+export enum WrapCallbackState {
+    INVALID,
+    LOADING,
+    SUBMITTED
+}
+
 export function useWrapCallback(
 ) {
     const { address } = useAccount()
     const [tx, setTx] = useState<string | null>(null)
+    const [state, setState] = useState<WrapCallbackState>(WrapCallbackState.INVALID)
+
     const [wrapType, setWrapType] = useState<WrapType>(WrapType.NOT_APPLICABLE)
     const [errorMessage, setErrorMessage] = useState<string>('')
 
@@ -27,7 +35,7 @@ export function useWrapCallback(
 
     const inputAmount = useMemo(() => tryParseAmount(typedValue, inputToken), [typedValue, inputToken])
     const sufficientBalance = inputAmount && balance
-
+    
     const depositCallback = useCallback(async () => {
         if (sufficientBalance && inputAmount && balance) {
             try {
@@ -39,10 +47,13 @@ export function useWrapCallback(
                 })
                 console.log(txHash)
                 setTx(txHash)
+                setState(WrapCallbackState.SUBMITTED)
             } catch (error) {
+                setState(WrapCallbackState.INVALID)
                 console.log("Could not deposit")
             }
         } else {
+            setState(WrapCallbackState.INVALID)
             setErrorMessage("Insufficient DRX Balance")
         }
     }, [inputAmount, balance, sufficientBalance])
@@ -54,15 +65,19 @@ export function useWrapCallback(
                     address: WETH[23451].address as `0x${string}`,
                     abi: WETH_ABI,
                     functionName: 'withdraw',
-                    value: BigInt(inputAmount.raw.toString())
+                    args: [BigInt(inputAmount.raw.toString())]
                 })
                 console.log(txHash)
                 setTx(txHash)
+                setState(WrapCallbackState.SUBMITTED)
             } catch (error) {
                 console.log("Could not withdraw", error)
+                setState(WrapCallbackState.INVALID)
+                
             }
         } else {
             setErrorMessage("Insufficient WDRX Balance")
+            setState(WrapCallbackState.INVALID)
         }
     }, [inputAmount, balance, sufficientBalance])
 
@@ -81,6 +96,7 @@ export function useWrapCallback(
         wrapType,
         callback: wrapType === WrapType.WRAP ? depositCallback : withdrawCallback,
         errorMessage,
-        tx
+        tx,
+        state
     }
 }
