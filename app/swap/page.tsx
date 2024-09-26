@@ -20,6 +20,7 @@ import { useApproval } from '@/hooks/useApproval';
 import { ROUTER_ADDRESS } from '@/constants';
 import { useAccountBalance } from '@/hooks/useBalance';
 import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback';
+import { maxAmountSpend } from '@/utils/maxAmountSpend';
 
 export default function Swap() {
     const {
@@ -40,9 +41,11 @@ export default function Swap() {
     const {
         approvalState
     } = useApproval(inputToken, address?.toString() ?? undefined, ROUTER_ADDRESS)
-
+    
     const { balance: balanceA } = useAccountBalance(address, inputToken)
     const { balance: balanceB } = useAccountBalance(address, outputToken)
+    
+    const maxAmountInput = maxAmountSpend(inputToken, balanceA.toString())
 
     const formattedAmounts =
         isWrapToken ? {
@@ -54,8 +57,9 @@ export default function Swap() {
         }
 
     const handleMaxInput = useCallback(() => {
-        onUserInput(Field.INPUT, formatUnits(BigInt(balanceA), inputToken?.decimals ?? 18))
-    }, [balanceA, onUserInput, inputToken])
+        console.log(maxAmountInput)
+        onUserInput(Field.INPUT, formatUnits(BigInt(maxAmountInput), inputToken?.decimals ?? 18))
+    }, [maxAmountInput, onUserInput, inputToken])
 
     return (
         <Flex
