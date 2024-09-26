@@ -1,11 +1,12 @@
-import React  from 'react'
+import React, { useEffect, useState }  from 'react'
 import { ModalWrapper } from '../Modal/wrapper'
 import { Flex, Link, Spinner, Text, useToken } from '@chakra-ui/react'
 import { SwapButtonState } from './button'
 import { Trade } from '@dreyerxswap/v2-sdk'
 import { transparentize } from 'polished'
-import { FaCircleCheck } from 'react-icons/fa6'
+import { FaCircleCheck, FaTriangleExclamation } from 'react-icons/fa6'
 import { DREYERX_EXPLORER_URL } from '@/constants'
+import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback'
 
 export function ModalTransactionSubmitted(props: {
     tx: string | null
@@ -52,12 +53,30 @@ export function ModalTransactionSubmitted(props: {
 export function ModalTransactionLoading(props: {
     trade: Trade | null
 }) {
-    const inputValue = props.trade ? props.trade.inputAmount.toSignificant(6) : '0'
-    const inputSymbol = props.trade ? props.trade.inputAmount.currency.symbol : 'UNKNOWN'
-    const outputValue = props.trade ? props.trade.outputAmount.toSignificant(6) : '0'
-    const outputSymbol = props.trade ? props.trade.outputAmount.currency.symbol : 'UNKNOWN'
+    const [label, setLabel] = useState<string>('')
 
-    const label = `Swapping ${inputValue} ${inputSymbol} for ${outputValue} ${outputSymbol}`
+    const {
+        wrapType
+    } = useWrapCallback()
+
+    const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
+
+    useEffect(() => {
+        if (!isWrapToken) {
+            const inputValue = props.trade ? props.trade.inputAmount.toSignificant(6) : '0'
+            const inputSymbol = props.trade ? props.trade.inputAmount.currency.symbol : 'UNKNOWN'
+            const outputValue = props.trade ? props.trade.outputAmount.toSignificant(6) : '0'
+            const outputSymbol = props.trade ? props.trade.outputAmount.currency.symbol : 'UNKNOWN'
+        
+            setLabel(`Swapping ${inputValue} ${inputSymbol} for ${outputValue} ${outputSymbol}`)
+        } else {
+            if (wrapType === WrapType.WRAP) {
+                setLabel(`Deposit to WDRX`)
+            } else {
+                setLabel(`Withdraw from WDRX`)
+            }
+        }
+    }, [isWrapToken, props.trade, wrapType])
 
     const [text] = useToken('colors', ['text'])
 
@@ -95,6 +114,39 @@ export function ModalTransactionLoading(props: {
                     color={transparentize(0.5, text)}
                 >
                     Confirm this transaction in your wallet
+                </Text>
+            </Flex>
+        </Flex>
+    )
+}
+
+export function ModalStateError(props: {
+    reason: string
+}) {
+    const [bgError] = useToken('colors', ['alert.error.background'])
+
+    return (
+        <Flex
+            flexDirection={'column'}
+            gap={3}
+            justify={'center'}
+            align={'center'}
+            marginY={10}
+        >
+
+            <FaTriangleExclamation size={80} color={bgError} />
+
+            <Flex
+                marginTop={10}
+                flexDirection={'column'}
+                align={'center'}
+                gap={1}
+            >
+                <Text
+                    fontWeight={'semibold'}
+                    fontSize={'14px'}
+                >
+                    { props.reason }
                 </Text>
             </Flex>
         </Flex>

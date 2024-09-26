@@ -10,6 +10,7 @@ import { transparentize } from 'polished'
 import { useSwapState } from '@/state/swap/hooks'
 import { SwapCallbackState, useSwapCallback } from '@/hooks/useSwapCallback'
 import { ModalState } from './modals'
+import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback'
 
 export enum SwapButtonState {
     UNKNOWN = 'unknown',
@@ -30,12 +31,20 @@ export default function SwapButton(props: {
     const {
         callback: swapCallback,
         state: swapState,
-        // errorMessage: swapErrorMessage,
+        errorMessage: swapErrorMessage,
         isPending: isSwapPending,
         tx: swapTx
     } = useSwapCallback(
         props.trade
     )
+
+    const {
+        callback: wrapCallback,
+        errorMessage: wrapErrorMessage,
+        wrapType
+    } = useWrapCallback()
+    
+    const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
 
     const [
         alertErrorBackground,
@@ -76,10 +85,44 @@ export default function SwapButton(props: {
         await swapCallback()
     }, [swapCallback])
 
+    const handleWrap = useCallback(async () => {
+        setState(SwapButtonState.LOADING)
+
+        await wrapCallback()
+    }, [wrapCallback])
+    
     const handleOnModalClose = useCallback(() => {
         onModalClose()
         setState(SwapButtonState.UNKNOWN)
     }, [onModalClose])
+
+    if (!isConnected) {
+        return (
+            <WalletConnectButton />
+        )
+    } else if (isConnecting) {
+        return (
+            <Button
+                backgroundColor={'primary1'}
+                width={'full'}
+            >
+                <Text>Connecting...</Text>
+            </Button>
+        )
+    }
+    
+    if (swapErrorMessage || wrapErrorMessage) {
+        return (
+            <Button
+                disabled
+                backgroundColor={alertErrorBackground}
+                width={'full'}
+            >
+                <Text
+                    color={transparentize(0.2, alertErrorText)}>{ swapErrorMessage ?? wrapErrorMessage }</Text>
+            </Button>
+        )
+    }
 
     if (!inputToken || !outputToken) {
         return (
@@ -110,21 +153,7 @@ export default function SwapButton(props: {
         )
     }
 
-    if (!isConnected) {
-        return (
-            <WalletConnectButton />
-        )
-    } else if (isConnecting) {
-        return (
-            <Button
-                isLoading
-                backgroundColor={'primary1'}
-                width={'full'}
-            >
-                <Text>Connecting...</Text>
-            </Button>
-        )
-    } else if (props.approvalState == ApprovalState.UNKNOWN) {
+    if (props.approvalState == ApprovalState.UNKNOWN && !isWrapToken) {
         return (
             <Button
                 backgroundColor={'primary1'}
@@ -147,14 +176,27 @@ export default function SwapButton(props: {
     } else {
         return (
             <>
-                <Button
-                    isLoading={state == SwapButtonState.LOADING}
-                    backgroundColor={'primary1'}
-                    width={'full'}
-                    onClick={() => handleSwap()}
-                >
-                    <Text>Swap</Text>
-                </Button>
+                {
+                    !isWrapToken ? (
+                        <Button
+                            isLoading={state == SwapButtonState.LOADING}
+                            backgroundColor={'primary1'}
+                            width={'full'}
+                            onClick={() => handleSwap()}
+                        >
+                            <Text>Swap</Text>
+                        </Button>
+                    ) : (
+                            <Button
+                                isLoading={state == SwapButtonState.LOADING}
+                                backgroundColor={'primary1'}
+                                width={'full'}
+                                onClick={() => handleWrap()}
+                            >
+                                <Text>{ wrapType === WrapType.WRAP ? 'Wrap' : 'Unwrap' }</Text>
+                            </Button>
+                    )
+                }
 
                 <ModalState
                     trade={props.trade}

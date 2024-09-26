@@ -1,4 +1,4 @@
-import TokenInterface from "@/interface/token";
+import TokenInterface, { TokenType } from "@/interface/token";
 import { getAllowance } from "@/utils/allowance";
 import { useCallback, useEffect, useState } from "react";
 import { writeApproval } from "@/utils/approve";
@@ -35,7 +35,7 @@ export function useApproval(
     }, [token, owner, spender])
 
     useEffect(() => {
-        if (token && owner && spender) {
+        if (token && owner && spender && token.type !== TokenType.NATIVE) {
             fetchAllowance()
         }
     }), [token, owner, spender]

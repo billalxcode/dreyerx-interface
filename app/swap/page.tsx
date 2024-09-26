@@ -1,15 +1,15 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback } from 'react'
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import CurrencyInput from '@/components/CurrencyInput';
 import Header from '@/components/Header';
 import Wrapper from '@/components/Swap/wrapper';
 import SwapPoolTabs from '@/components/SwapPoolTabs';
-import { Divider, Flex, Icon } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, Divider, Flex, Icon } from '@chakra-ui/react';
 import { FaArrowDown } from 'react-icons/fa6';
 import SwapButton from '@/components/Swap/button';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { Field } from '@/state/swap/actions';
 import { useSwapActionHandlers, useSwapState } from '@/state/swap/hooks';
 import { formatUnits } from 'viem';
@@ -18,6 +18,8 @@ import { TradePrice } from '@/components/Swap/trade';
 import SwapInfo from '@/components/Swap/info';
 import { useApproval } from '@/hooks/useApproval';
 import { ROUTER_ADDRESS } from '@/constants';
+import { useAccountBalance } from '@/hooks/useBalance';
+import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback';
 
 export default function Swap() {
     const {
@@ -25,38 +27,31 @@ export default function Swap() {
         onUserInput
     } = useSwapActionHandlers()
     const { address } = useAccount()
-    const { field, inputToken, outputToken, typedValue } = useSwapState()
+    const { inputToken, outputToken, typedValue } = useSwapState()
 
     const { trade } = useTrade()
+
+    const {
+        wrapType
+    } = useWrapCallback()
+
+    const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
+
     const {
         approvalState
-    } = useApproval(inputToken ?? undefined, address?.toString() ?? undefined, ROUTER_ADDRESS)
+    } = useApproval(inputToken, address?.toString() ?? undefined, ROUTER_ADDRESS)
 
-    const [balanceA, setBalanceA] = useState<bigint | number>(0)
-    const [balanceB, setBalanceB] = useState<bigint | number>(0)
+    const { balance: balanceA } = useAccountBalance(address, inputToken)
+    const { balance: balanceB } = useAccountBalance(address, outputToken)
 
-    const { data: balanceInput } = useBalance({
-        address,
-        token: inputToken ? inputToken.address as `0x${string}` : undefined
-    })
-
-    const { data: balanceOutput } = useBalance({
-        address,
-        token: outputToken ? outputToken.address as `0x${string}` : undefined
-    })
-
-    const formattedAmounts = {
-        [field]: typedValue
-    }
-
-    useEffect(() => {
-        if (balanceInput) {
-            setBalanceA(balanceInput.value)
+    const formattedAmounts =
+        isWrapToken ? {
+            [Field.INPUT]: typedValue,
+            [Field.OUTPUT]: typedValue
+        } : {
+            [Field.INPUT]: typedValue,
+            [Field.OUTPUT]: trade?.outputAmount.toSignificant(6)
         }
-        if (balanceOutput) {
-            setBalanceB(balanceOutput.value)
-        }
-    }, [balanceInput, balanceOutput])
 
     const handleMaxInput = useCallback(() => {
         onUserInput(Field.INPUT, formatUnits(BigInt(balanceA), inputToken?.decimals ?? 18))
@@ -75,10 +70,16 @@ export default function Swap() {
                 >
                     <SwapPoolTabs />
 
-                    <Card direction='column' width={'450px'} gap={3}>
+                    <Alert status={'info'} bgColor={'transparent'} as={Card} width={['full', 0, '450px']}>
+                        <AlertIcon color={'white'} />
+
+                        <AlertDescription fontSize={'14px'}>This app is in development stage, some features may not work or have errors</AlertDescription>
+                    </Alert>
+
+                    <Card direction='column' width={['full', 'full', '450px']} gap={3}>
                         <CurrencyInput
                             field={Field.INPUT}
-                            typedValue={formattedAmounts[Field.INPUT]}
+                            typedValue={formattedAmounts[Field.INPUT] ?? '0'}
                             showMaxButton={true}
                             balance={inputToken ? BigInt(balanceA) : BigInt(0)}
                             onUserInput={(value) => onUserInput(Field.INPUT, value)}
@@ -95,7 +96,7 @@ export default function Swap() {
                         </Flex>
                         <CurrencyInput
                             field={Field.OUTPUT}
-                            typedValue={trade?.outputAmount.toSignificant(6) ?? '0'}
+                            typedValue={formattedAmounts[Field.OUTPUT] ?? '0'}
                             showMaxButton={false}
                             balance={outputToken ? BigInt(balanceB) : BigInt(0)}
                             onUserInput={(value) => onUserInput(Field.OUTPUT, value)}

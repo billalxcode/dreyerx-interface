@@ -2,7 +2,7 @@ import { BIPS_BASE, DEFAULT_DEADLINE_FROM_NOW, ROUTER_ADDRESS } from "@/constant
 import { JSBI, Percent, Router, Trade } from "@dreyerxswap/v2-sdk";
 import { useCallback, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { abi as UniswapV2Router02Abi } from "@uniswap/v2-periphery/build/UniswapV2Router02.json"
+import uniswapV2Router02 from "@uniswap/v2-periphery/build/UniswapV2Router02.json"
 
 export enum SwapCallbackState {
     INVALID,
@@ -45,7 +45,7 @@ export function useSwapCallback(
         try {
             const result = await writeContractAsync({
                 address: ROUTER_ADDRESS,
-                abi: UniswapV2Router02Abi,
+                abi: uniswapV2Router02.abi,
                 functionName: routerParams?.methodName ?? 'swapTokensForExactTokens',
                 args: routerParams?.args,
                 value: routerParams?.value ? BigInt(routerParams?.value) : undefined

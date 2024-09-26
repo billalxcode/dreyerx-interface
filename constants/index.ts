@@ -1,4 +1,6 @@
-import { JSBI, Percent } from "@dreyerxswap/v2-sdk"
+import TokenInterface, { TokenType } from "@/interface/token";
+import { ChainId, JSBI, Percent } from "@dreyerxswap/v2-sdk"
+import { zeroAddress } from "viem";
 
 export const ROUTER_ADDRESS = "0xB1a0EAf384C32Aae60df8EE9CAAD683105a06Ce1" as `0x${string}`;
 
@@ -24,3 +26,13 @@ export const MIN_ETH: JSBI = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16))
 export const BETTER_TRADE_LINK_THRESHOLD = new Percent(JSBI.BigInt(75), JSBI.BigInt(10000))
 
 export const DREYERX_EXPLORER_URL = 'https://scan.dreyerx.com'
+
+export const NATIVE_TOKEN: TokenInterface = {
+    chainId: ChainId.MAINNET,
+    name: 'DreyerX Native',
+    decimals: 18,
+    address: zeroAddress,
+    logoURI: 'https://raw.githubusercontent.com/dreyerx-swap/assets/main/tokenlist/0x69Ca138041e4D3C5De4eC45268f462E9881A06BA/logo.png',
+    symbol: 'DRX',
+    type: TokenType.NATIVE
+}

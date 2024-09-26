@@ -5,7 +5,7 @@ import React, { ReactNode } from 'react'
 
 export default function Selector(props: {
   children: ReactNode,
-  onClick: () => void
+  onClick?: () => void
 }) {
   const [border] = useToken('colors', ['border'])
 

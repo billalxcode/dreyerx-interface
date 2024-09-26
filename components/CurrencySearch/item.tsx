@@ -1,4 +1,5 @@
 'use client'
+import { TokenType } from '@/interface/token'
 import { Flex, Image, Spinner, Text, useToken } from '@chakra-ui/react'
 import { transparentize } from 'polished'
 import React, { useEffect, useState } from 'react'
@@ -11,17 +12,18 @@ export default function CurrencySearchItem(props: {
     symbol: string,
     decimals: number,
     address: string,
+    type: TokenType
     onSelect: () => void
 }) {
     const [border] = useToken('colors', ['border'])
 
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [balance, setBalance] = useState<bigint>(0)
-
+    const [balance, setBalance] = useState<bigint | number>(0)
+    
     const { address } = useAccount()
     const { data: tokenBalance } = useBalance({
         address,
-        token: props.address as `0x${string}`
+        token: props.type !== TokenType.NATIVE ? props.address as `0x${string}` : undefined
     })
 
     const [bg2, text] = useToken('colors', ['bg2', 'text'])
@@ -70,7 +72,7 @@ export default function CurrencySearchItem(props: {
                     <Spinner size={'sm'} speed='1s' color={transparentize(0.5, border)} />
                 ) : (
                     <Text fontSize={'12px'}>
-                        {formatUnits(balance, props.decimals).substring(0, 7)} {props.symbol}
+                        {formatUnits(BigInt(balance), props.decimals).substring(0, 7)} {props.symbol}
                     </Text>
                 )
             }

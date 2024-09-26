@@ -7,8 +7,7 @@ export interface SwapState {
     typedValue: string | undefined,
     inputToken: TokenInterface | undefined,
     outputToken: TokenInterface | undefined,
-    recipient: string | null,
-    tx: string | null
+    recipient: string | null
 }
 
 const initialState: SwapState = {
@@ -16,8 +15,7 @@ const initialState: SwapState = {
     typedValue: '',
     inputToken: undefined,
     outputToken: undefined,
-    recipient: '',
-    tx: ''
+    recipient: ''
 }
 
 const swapReducer = createReducer(initialState, builder => {

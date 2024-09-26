@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { readContract } from 'wagmi/actions'
 import { tryParseAmount, useSwapState } from '@/state/swap/hooks'
 import { config } from '@/config/wagmi'
-import { abi as uniswapV2PairABI } from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import uniswapV2Pair from '@uniswap/v2-core/build/UniswapV2Pair.json'
+import { TokenType } from '@/interface/token'
 
 async function createPair(tokenA: Token, tokenB: Token): Promise<Pair> {
     const pairAddress = Pair.getAddress(tokenA, tokenB);
@@ -12,7 +13,7 @@ async function createPair(tokenA: Token, tokenB: Token): Promise<Pair> {
     // Membaca reserve dari pasangan Uniswap V2
     const reserves = await readContract(config, {
         address: pairAddress as `0x${string}`,
-        abi: uniswapV2PairABI,
+        abi: uniswapV2Pair.abi,
         functionName: 'getReserves'
     });
 
@@ -93,7 +94,7 @@ export function useTrade(
     }, [chainId, inputToken, outputToken, typedValue, pair])
 
     useEffect(() => {
-        if (inputToken && outputToken) {
+        if (inputToken && outputToken && inputToken.type !== TokenType.NATIVE && outputToken.type !== TokenType.NATIVE) {
             fetchPairAndPrice()
         } else {
             setTrade(null)

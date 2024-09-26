@@ -11,11 +11,8 @@ export default function Wrapper(props: {
         align={'center'}
         marginTop={10}
         marginBottom={10}
-        marginX={[5, 0, 0]}
     >
-        {
-            props.children
-        }
+        { props.children }
     </Flex>
   )
 }

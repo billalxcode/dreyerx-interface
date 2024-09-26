@@ -6,7 +6,8 @@ import { transparentize } from 'polished'
 import CurrencySearchList from './list'
 import CurrencySearchItem from './item'
 import SwapTokenList from '@dreyerxswap/default-token-list'
-import TokenInterface from '@/interface/token'
+import TokenInterface, { TokenType } from '@/interface/token'
+import { NATIVE_TOKEN } from '@/constants'
 
 export default function CurrencySearch(props: {
   isOpen: boolean,
@@ -14,6 +15,11 @@ export default function CurrencySearch(props: {
   onClose: () => void,
   onSelect: (data: TokenInterface) => void
 }) {
+  const isNativeTokenPresent = SwapTokenList.tokens.find(token => token.address === NATIVE_TOKEN.address)
+  if (!isNativeTokenPresent) {
+    SwapTokenList.tokens.unshift(NATIVE_TOKEN)
+  }
+
   const [text, border] = useToken('colors', ['text', 'border'])
 
   return (
@@ -50,6 +56,7 @@ export default function CurrencySearch(props: {
                     image={tokenlist.logoURI}
                     address={tokenlist.address}
                     decimals={tokenlist.decimals}
+                    type={tokenlist?.type ?? TokenType.ERC20}
                     onSelect={() => props.onSelect(tokenlist)}
                   />
                 </>

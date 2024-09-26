@@ -1,15 +1,16 @@
 'use client'
 import React, { useState } from 'react'
 import CurrencyWrapper, { CurrencyLabelWrapper } from './wrapper'
-import { Flex, Icon, Image, Input, Text, useDisclosure, useToken } from '@chakra-ui/react'
+import { Divider, Flex, Icon, Image, Input, Text, useDisclosure, useToken } from '@chakra-ui/react'
 import Selector from '../Selector'
 import { transparentize } from 'polished'
 import { FaChevronDown } from 'react-icons/fa6'
-import Button from '../Button'
 import CurrencySearch from '../CurrencySearch'
 import TokenInterface from '@/interface/token'
 import { formatUnits } from 'viem'
 import { Field } from '@/state/swap/actions'
+import { usePathname } from 'next/navigation'
+import { NATIVE_TOKEN } from '@/constants'
 
 export default function CurrencyInput(props: {
     balance: bigint,
@@ -20,11 +21,19 @@ export default function CurrencyInput(props: {
     onSelectToken: (data: TokenInterface) => void,
     onMaxInput?: () => void
 }) {
+    const pathname = usePathname()
+    const isSelectorDisabled = pathname == '/wrap'
+
     const [text, border] = useToken('colors', ['text', 'border'])
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-    const [token, setToken] = useState<TokenInterface | undefined>()
-    const label = props.field === Field.INPUT ? "You're Selling" : "You're buying"
+    const [token, setToken] = useState<TokenInterface | undefined>(
+        pathname == '/wrap' ? NATIVE_TOKEN : undefined
+    )
+
+    const label = props.field === Field.INPUT
+        ? (pathname === '/swap' ? "You are selling" : pathname === '/wrap' ? "You are wrapping" : "You're Selling")
+        : (pathname === '/swap' ? "You are buying" : pathname === '/wrap' ? "You are receiving" : "You're Buying")
 
     const onSelectToken = (data: TokenInterface) => {
         setToken(data)
@@ -37,13 +46,33 @@ export default function CurrencyInput(props: {
             <CurrencyWrapper>
                 <CurrencyLabelWrapper>
                     <Text fontSize={'12px'}>{label}</Text>
-                    <Text fontSize={'12px'}>Balance: {formatUnits(props?.balance, token?.decimals ?? 18).substring(0, 7)} {token?.symbol}</Text>
+                    <Flex gap={2}>
+                        <Text fontSize={'12px'}>Balance: {formatUnits(props?.balance, token?.decimals ?? 18).substring(0, 7)} {token?.symbol}</Text>
+                        {
+                            props.showMaxButton ? (
+                                <>
+                                    <Divider orientation={'vertical'} />
+                                    <Text
+                                        fontSize={'12px'}
+                                        fontWeight={'bold'}
+                                        color={'primary1'}
+                                        _hover={{
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={props.onMaxInput}
+                                    >
+                                        MAX
+                                    </Text>
+                                </>
+                            ) : null
+                        }
+                    </Flex>
                 </CurrencyLabelWrapper>
                 <Flex
                     flexDirection={'row-reverse'}
                     gap={2}
                 >
-                    <Selector onClick={onOpen}>
+                    <Selector onClick={!isSelectorDisabled ? onOpen : undefined}>
                         {
                             token ? (
                                 <Image
@@ -65,13 +94,6 @@ export default function CurrencyInput(props: {
 
                         <Icon as={FaChevronDown} width={'10px'} height={'10px'} />
                     </Selector>
-                    {
-                        props.showMaxButton ? (
-                            <Button flex={1} backgroundColor={'bg1'} onClick={props.onMaxInput}>
-                                <Text fontSize={'12px'}>Max</Text>
-                            </Button>
-                        ) : null
-                    }
                     <Input
                         placeholder='0.00'
                         textAlign={'left'}

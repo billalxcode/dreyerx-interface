@@ -5,7 +5,7 @@ export default function Wrapper(props: {
   children: ReactNode
 }) {
   return (
-    <Card flexDirection={'row'} gap={'20px'} width={'250px'} justify={'center'} align={'start'}>
+    <Card flexDirection={'row'} gap={'20px'} width={'full'} justify={'center'} align={'start'}>
       { props.children }
     </Card>
   )
