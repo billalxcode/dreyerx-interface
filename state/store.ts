@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import swapReducer from "./swap/reducers";
+import mintReducer from "./mint/reducers";
 
 const store = configureStore({
     reducer: {
-        swap: swapReducer
+        swap: swapReducer,
+        mint: mintReducer
     }
 })
 

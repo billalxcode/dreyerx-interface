@@ -1,6 +1,7 @@
 export enum TokenType {
     NATIVE,
-    ERC20
+    ERC20,
+    WRAPPED
 }
 
 export default interface TokenInterface {

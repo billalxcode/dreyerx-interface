@@ -7,7 +7,7 @@ export default function SwapPoolTabs() {
   return (
     <Wrapper>
       <TabItem href='/swap' text='Swap' />
-      <TabItem href='/pool' text='Pool' isDisabled />
+      <TabItem href='/pool' text='Pool' />
     </Wrapper>
   )
 }

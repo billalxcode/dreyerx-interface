@@ -1,8 +1,9 @@
 import TokenInterface, { TokenType } from "@/interface/token";
-import { ChainId, JSBI, Percent } from "@dreyerxswap/v2-sdk"
+import { ChainId, JSBI, Percent, WETH } from "@dreyerxswap/v2-sdk"
 import { zeroAddress } from "viem";
 
 export const ROUTER_ADDRESS = "0xB1a0EAf384C32Aae60df8EE9CAAD683105a06Ce1" as `0x${string}`;
+export const MULTICALL_ADDRESS = "0x14F5D92486d6F5d3879E312A22B4eb5D16f59361" as `0x${string}`
 
 // default allowed slippage, in bips
 export const INITIAL_ALLOWED_SLIPPAGE = 50
@@ -35,4 +36,14 @@ export const NATIVE_TOKEN: TokenInterface = {
     logoURI: 'https://raw.githubusercontent.com/dreyerx-swap/assets/main/tokenlist/0x69Ca138041e4D3C5De4eC45268f462E9881A06BA/logo.png',
     symbol: 'DRX',
     type: TokenType.NATIVE
+}
+
+export const WRAPPED_TOKEN: TokenInterface = {
+    chainId: ChainId.MAINNET,
+    name: "Wrapped DreyerX",
+    decimals: WETH[ChainId.MAINNET].decimals,
+    address: WETH[ChainId.MAINNET].address,
+    symbol: 'WDRX',
+    logoURI: 'https://raw.githubusercontent.com/dreyerx-swap/assets/main/tokenlist/0x69Ca138041e4D3C5De4eC45268f462E9881A06BA/logo.png',
+    type: TokenType.ERC20,
 }

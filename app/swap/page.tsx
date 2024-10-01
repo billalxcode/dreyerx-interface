@@ -57,7 +57,6 @@ export default function Swap() {
         }
 
     const handleMaxInput = useCallback(() => {
-        console.log(maxAmountInput)
         onUserInput(Field.INPUT, formatUnits(BigInt(maxAmountInput), inputToken?.decimals ?? 18))
     }, [maxAmountInput, onUserInput, inputToken])
 

@@ -20,8 +20,7 @@ export enum WrapCallbackState {
     SUBMITTED
 }
 
-export function useWrapCallback(
-) {
+export function useWrapCallback() {
     const { address } = useAccount()
     const [tx, setTx] = useState<string | null>(null)
     const [state, setState] = useState<WrapCallbackState>(WrapCallbackState.INVALID)
@@ -73,7 +72,7 @@ export function useWrapCallback(
             } catch (error) {
                 console.log("Could not withdraw", error)
                 setState(WrapCallbackState.INVALID)
-                
+
             }
         } else {
             setErrorMessage("Insufficient WDRX Balance")

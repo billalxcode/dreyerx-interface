@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CurrencyWrapper, { CurrencyLabelWrapper } from './wrapper'
 import { Divider, Flex, Icon, Image, Input, Text, useDisclosure, useToken } from '@chakra-ui/react'
 import Selector from '../Selector'
@@ -9,17 +9,19 @@ import CurrencySearch from '../CurrencySearch'
 import TokenInterface from '@/interface/token'
 import { formatUnits } from 'viem'
 import { Field } from '@/state/swap/actions'
+import { Field as MintField } from '@/state/mint/actions'
 import { usePathname } from 'next/navigation'
 import { NATIVE_TOKEN } from '@/constants'
 
 export default function CurrencyInput(props: {
     balance: bigint,
     typedValue: string | undefined,
-    field: Field,
+    field: Field | MintField,
     showMaxButton: boolean,
     onUserInput: (value: string) => void,
     onSelectToken: (data: TokenInterface) => void,
-    onMaxInput?: () => void
+    onMaxInput?: () => void,
+    token?: TokenInterface
 }) {
     const pathname = usePathname()
     const isSelectorDisabled = pathname == '/wrap'
@@ -35,6 +37,10 @@ export default function CurrencyInput(props: {
         ? (pathname === '/swap' ? "You are selling" : pathname === '/wrap' ? "You are wrapping" : "You're Selling")
         : (pathname === '/swap' ? "You are buying" : pathname === '/wrap' ? "You are receiving" : "You're Buying")
 
+    useEffect(() => {
+        setToken(props.token)
+    }, [props.token])
+    
     const onSelectToken = (data: TokenInterface) => {
         setToken(data)
         props.onSelectToken(data)
