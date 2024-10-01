@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google"
 import AppProvider from "./providers";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import { Suspense } from "react";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -36,9 +37,11 @@ export default function RootLayout({
       <body
         className={poppins.className}
       >
+      <Suspense>
         <AppProvider>
           { children }
         </AppProvider>
+      </Suspense>
       </body>
     </html>
   );
