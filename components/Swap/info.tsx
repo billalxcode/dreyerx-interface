@@ -43,7 +43,7 @@ function SwapInfoWrapper(props: {
     return (
         <Accordion
             allowMultiple
-            width={'450px'}
+            width={['full', 'full', '450px']}
         >
             <AccordionItem border={'none'}>
                 <AccordionButton>
@@ -78,7 +78,7 @@ export default function SwapInfo(props: {
 
     return (
         <Card
-            width={'450px'}
+            width={['full', 'full', '450px']}
         >
             <SwapInfoWrapper trade={props.trade}>
                 <Flex
