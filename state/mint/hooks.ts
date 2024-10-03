@@ -1,16 +1,22 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Field, typeInput } from "./actions";
 import TokenInterface from "@/interface/token";
 import { useAccount } from "wagmi";
 import { PairState, usePair } from "@/hooks/usePairs";
 import { useTotalSupply } from "@/hooks/useTotalSupply";
-import { CurrencyAmount, JSBI, Token } from "@dreyerxswap/v2-sdk";
+import { CurrencyAmount, JSBI } from "@dreyerxswap/v2-sdk";
 import { useAccountBalance } from "@/hooks/useBalance";
 import { tryParseAmount } from "../swap/hooks";
 import { tokenCurrency, wrappedCurrency, wrappedCurrencyAmount } from "@/utils/wrappedCurrency";
 import { NATIVE_TOKEN } from "@/constants";
+
+export enum MintState {
+    VALID = 'valid',
+    ERROR = 'error',
+    UNKNOWN = 'unknown'
+}
 
 export function useMintState(): RootState['mint'] {
     return useSelector<RootState, RootState['mint']>(state => state.mint)
@@ -22,8 +28,10 @@ export function useMintDeliveredInfo(
 ) {
     const { address } = useAccount()
     const { field, typedValue, otherTypedValue } = useMintState()
-    const otherField = field == Field.TOKEN0 ? Field.TOKEN1 : Field.TOKEN0
+    const [state, setState] = useState<MintState>(MintState.UNKNOWN)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+    const otherField = field == Field.TOKEN0 ? Field.TOKEN1 : Field.TOKEN0
     const {
         state: pairState,
         pair
@@ -56,19 +64,15 @@ export function useMintDeliveredInfo(
                 wrappedCurrency(token0),
                 wrappedCurrency(token1)
             ]
-            console.log('Token A', tokenA)
-            console.log('Token B', tokenB)
-            console.log('Field', field)
-            console.log('Other field', otherField)
 
             if (tokenA && tokenB && wrappedToken0Amount && pair) {
                 const tokenBCurrency = otherField === Field.TOKEN1 ? token1 : token0
-                
-                const tokenBAmount = 
+
+                const tokenBAmount =
                     otherField === Field.TOKEN1
                         ? pair.priceOf(tokenCurrency(tokenA)).quote(wrappedToken0Amount)
                         : pair.priceOf(tokenCurrency(tokenB)).quote(wrappedToken0Amount)
-                console.log(pair.priceOf(tokenCurrency(tokenB)))
+
                 return tokenBCurrency === NATIVE_TOKEN ? CurrencyAmount.ether(tokenBAmount.raw) : tokenBAmount
             } else {
                 return undefined
@@ -76,26 +80,62 @@ export function useMintDeliveredInfo(
         } else {
             return undefined
         }
-    }, [noLiquidity, otherTypedValue, otherField, token1, pair, token0, token0Amount])
+    }, [
+        noLiquidity,
+        otherTypedValue,
+        otherField,
+        token1,
+        pair,
+        token0,
+        token0Amount,
+        field,
+        tokens
+    ])
 
-    const parsedAmounts = {
-        [Field.TOKEN0]: field === Field.TOKEN0 ? token0Amount : token1Amount,
-        [Field.TOKEN1]: field === Field.TOKEN0 ? token1Amount : token0Amount
-    }
+    const parsedAmounts = useMemo(() => {
+        return {
+            [Field.TOKEN0]: field === Field.TOKEN0 ? token0Amount : token1Amount,
+            [Field.TOKEN1]: field === Field.TOKEN0 ? token1Amount : token0Amount
+        }
+    }, [field, token0Amount, token1Amount])
+
+    useEffect(() => {
+        if (token0Amount && JSBI.greaterThan(token0Amount.raw, JSBI.BigInt(balanceToken0.balance.toString()))) {
+            setErrorMessage(`Insufficient balance for ${token0?.symbol}`);
+            setState(MintState.ERROR);
+        } else if (token1Amount && JSBI.greaterThan(token1Amount.raw, JSBI.BigInt(balanceToken1.balance.toString()))) {
+            setErrorMessage(`Insufficient balance for ${token1?.symbol}`);
+            setState(MintState.ERROR);
+        } else {
+            setErrorMessage(null);
+            setState(MintState.VALID);
+        }
+    }, [
+        token0,
+        token1,
+        token0Amount,
+        token1Amount,
+        balanceToken0,
+        balanceToken1,
+        setErrorMessage,
+        setState
+    ]);
 
     return {
         pair,
         noLiquidity,
         balanceToken0,
         balanceToken1,
-        parsedAmounts
+        parsedAmounts,
+        state,
+        errorMessage
     }
 }
 
 export function useMintActionHandlers(
     noLiquidity: boolean | undefined
 ): {
-    onTokenAInput: (tyepdValue: string) => void,
+    onTokenAInput: (typed: string) => void,
     onTokenBInput: (typedValue: string) => void
 } {
     const dispatch = useDispatch<AppDispatch>()

@@ -1,4 +1,5 @@
 'use client'
+import React, { useEffect } from 'react'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import CurrencyInput from '@/components/CurrencyInput'
@@ -13,13 +14,12 @@ import { useMintActionHandlers, useMintDeliveredInfo, useMintState } from '@/sta
 import { maxAmountSpend } from '@/utils/maxAmountSpend'
 import { Alert, AlertDescription, AlertIcon, Divider, Flex, Icon } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
 import { FaArrowDown } from 'react-icons/fa6'
 import { formatUnits } from 'viem'
 
 export default function NewPool() {
   const router = useRouter()
-  
+
   const {
     token0,
     token1,
@@ -31,7 +31,9 @@ export default function NewPool() {
     noLiquidity,
     balanceToken0,
     balanceToken1,
-    parsedAmounts
+    parsedAmounts,
+    state,
+    errorMessage
   } = useMintDeliveredInfo(token0, token1)
   const { onTokenAInput, onTokenBInput } = useMintActionHandlers(noLiquidity)
 
@@ -46,6 +48,11 @@ export default function NewPool() {
     [Field.TOKEN0]: token0 ? maxAmountSpend(token0, balanceToken0.balance.toString()) : '0',
     [Field.TOKEN1]: token1 ? maxAmountSpend(token1, balanceToken1.balance.toString()) : '0'
   }
+
+  useEffect(() => {
+    console.log('Mint state', state)
+    console.log('Error message', errorMessage)
+  }, [state, errorMessage])
 
   const onTokenSelection = (token: TokenInterface, field: Field) => {
     let tokenA = token0?.address ?? ''
@@ -134,9 +141,10 @@ export default function NewPool() {
               onMaxInput={() => onMaxInput(Field.TOKEN1)}
               token={token1 ?? undefined}
               showMaxButton
+              inputReadonly
             />
 
-            <PoolButton poolState={poolState} />
+            <PoolButton poolState={poolState} errorMessage={errorMessage} />
           </Card>
         </Flex>
       </Wrapper>

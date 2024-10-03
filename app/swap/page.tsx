@@ -41,10 +41,10 @@ export default function Swap() {
     const {
         approvalState
     } = useApproval(inputToken, address?.toString() ?? undefined, ROUTER_ADDRESS)
-    
+
     const { balance: balanceA } = useAccountBalance(address, inputToken)
     const { balance: balanceB } = useAccountBalance(address, outputToken)
-    
+
     const maxAmountInput = maxAmountSpend(inputToken, balanceA.toString())
 
     const formattedAmounts =

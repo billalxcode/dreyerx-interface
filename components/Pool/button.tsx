@@ -1,19 +1,28 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import Button from '../Button'
-import { Text, useToken } from '@chakra-ui/react'
+import { Text, useDisclosure, useToken } from '@chakra-ui/react'
 import { PoolState } from '@/hooks/usePool'
 import { transparentize } from 'polished'
 import { useAccount } from 'wagmi'
 import WalletConnectButton from '../WalletConnect/button'
 import { useMintCallback } from '@/hooks/useMintCallback'
+import { ModalState } from './modals'
 
 export enum PoolButtonState {
-
+  UNKNOWN = 'unknown',
+  LOADING = 'loading',
+  MINT = 'mint',
+  SUBMITTED = 'submitted',
+  ERROR = 'error'
 }
 
 export default function PoolButton(props: {
-  poolState: PoolState
+  poolState: PoolState,
+  errorMessage: string | null
 }) {
+  const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure()
+  const [state, setState] = useState<PoolButtonState>(PoolButtonState.UNKNOWN)
+
   const [
     alertErrorBackground,
     alertErrorText
@@ -29,8 +38,9 @@ export default function PoolButton(props: {
   const { isConnected, isConnecting } = useAccount()
 
   const handleSupply = useCallback(() => {
-    mintCallback()
-  }, [mintCallback])
+    // mintCallback()
+    onModalOpen()
+  }, [mintCallback, onModalOpen])
 
   if (!isConnected) {
     return (
@@ -43,6 +53,19 @@ export default function PoolButton(props: {
         width={'full'}
       >
         <Text>Connecting...</Text>
+      </Button>
+    )
+  }
+
+  if (props.errorMessage) {
+    return (
+      <Button
+        disabled
+        backgroundColor={alertErrorBackground}
+        width={'full'}
+      >
+        <Text
+          color={transparentize(0.2, alertErrorText)}>{props.errorMessage}</Text>
       </Button>
     )
   }
@@ -60,12 +83,20 @@ export default function PoolButton(props: {
     )
   }
   return (
-    <Button
+    <>
+      <Button
         width={'full'}
         backgroundColor={'primary1'}
         onClick={handleSupply}
-    >
+      >
         <Text>Supply</Text>
-    </Button>
+      </Button>
+
+      <ModalState
+        isOpen={isModalOpen}
+        onClose={onModalClose}
+        state={state}
+      />
+    </>
   )
 }

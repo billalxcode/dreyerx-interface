@@ -14,7 +14,6 @@ export default function Selector(props: {
       flexDirection={'row'}
       padding={2}
       paddingX={5}
-      flex={2}
       justifyContent={'center'}
       alignItems={'center'}
       borderWidth={1}

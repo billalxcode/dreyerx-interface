@@ -21,7 +21,8 @@ export default function CurrencyInput(props: {
     onUserInput: (value: string) => void,
     onSelectToken: (data: TokenInterface) => void,
     onMaxInput?: () => void,
-    token?: TokenInterface
+    token?: TokenInterface,
+    inputReadonly?: boolean
 }) {
     const pathname = usePathname()
     const isSelectorDisabled = pathname == '/wrap'
@@ -40,7 +41,7 @@ export default function CurrencyInput(props: {
     useEffect(() => {
         setToken(props.token)
     }, [props.token])
-    
+
     const onSelectToken = (data: TokenInterface) => {
         setToken(data)
         props.onSelectToken(data)
@@ -106,6 +107,7 @@ export default function CurrencyInput(props: {
                         borderWidth={1}
                         color={text}
                         flex={3}
+                        isReadOnly={props.inputReadonly}
                         borderColor={transparentize(0.9, border)}
                         value={props.typedValue}
                         onChange={(event) => props.onUserInput(event.target.value)}

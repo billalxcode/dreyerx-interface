@@ -14,6 +14,7 @@ export default function Header() {
             padding={5}
             borderRadius={5}
             borderBottomWidth={1}
+            width={'full'}
             borderColor={transparentize(0.9, border)}
         >
             <LinkBox

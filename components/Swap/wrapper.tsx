@@ -11,7 +11,8 @@ export default function Wrapper(props: {
         align={'center'}
         marginTop={10}
         marginBottom={10}
-        marginX={[5, 0, 0]}
+        paddingLeft={[2, 0, 0]}
+        paddingRight={[2, 0, 0]}
     >
         {
             props.children

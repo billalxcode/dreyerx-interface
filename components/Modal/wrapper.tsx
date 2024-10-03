@@ -1,7 +1,7 @@
 import { Divider, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 
-function ModalWrapper(props: {
+export function ModalWrapper(props: {
     children: ReactNode,
     isOpen: boolean,
     onClose: () => void,
@@ -44,5 +44,3 @@ function ModalWrapper(props: {
         </Modal>
     )
 }
-
-export { ModalWrapper }
