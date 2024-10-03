@@ -5,7 +5,6 @@ import Header from '@/components/Header'
 import PoolTable from '@/components/Pool/table'
 import Wrapper from '@/components/Pool/wrapper'
 import SwapPoolTabs from '@/components/SwapPoolTabs'
-import { usePairs } from '@/hooks/usePairs'
 import { Alert, AlertDescription, AlertIcon, Flex, Text } from '@chakra-ui/react'
 import Link from 'next/link'
 import React from 'react'
@@ -25,7 +24,7 @@ export default function Pool() {
                 >
                     <SwapPoolTabs />
 
-                    <Alert status={'info'} bgColor={'transparent'} as={Card} width={['full', 0, '450px']}>
+                    <Alert status={'info'} bgColor={'transparent'} as={Card} width={['full', 'full', '450px']}>
                         <AlertIcon color={'white'} />
 
                         <AlertDescription fontSize={'14px'}>This app is in development stage, some features may not work or have errors</AlertDescription>
@@ -48,7 +47,7 @@ export default function Pool() {
                                 </Flex>
                             </Button>
                         </Link>
-                        
+
                         <PoolTable />
                     </Card>
                 </Flex>

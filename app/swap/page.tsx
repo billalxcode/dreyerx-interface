@@ -73,7 +73,7 @@ export default function Swap() {
                 >
                     <SwapPoolTabs />
 
-                    <Alert status={'info'} bgColor={'transparent'} as={Card} width={['full', 0, '450px']}>
+                    <Alert status={'info'} bgColor={'transparent'} as={Card} width={['full', 'full', '450px']}>
                         <AlertIcon color={'white'} />
 
                         <AlertDescription fontSize={'14px'}>This app is in development stage, some features may not work or have errors</AlertDescription>
