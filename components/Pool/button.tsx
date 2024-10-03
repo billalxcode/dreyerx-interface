@@ -1,12 +1,13 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Button from '../Button'
 import { Text, useDisclosure, useToken } from '@chakra-ui/react'
-import { PoolState } from '@/hooks/usePool'
+import { PoolState, usePool } from '@/hooks/usePool'
 import { transparentize } from 'polished'
 import { useAccount } from 'wagmi'
 import WalletConnectButton from '../WalletConnect/button'
-import { useMintCallback } from '@/hooks/useMintCallback'
+import { MintState, useMintCallback } from '@/hooks/useMintCallback'
 import { ModalState } from './modals'
+import { useMintState } from '@/state/mint/hooks'
 
 export enum PoolButtonState {
   UNKNOWN = 'unknown',
@@ -22,6 +23,8 @@ export default function PoolButton(props: {
 }) {
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure()
   const [state, setState] = useState<PoolButtonState>(PoolButtonState.UNKNOWN)
+  const { typedValue, } = useMintState()
+  const { token0, token1 } = usePool()
 
   const [
     alertErrorBackground,
@@ -32,15 +35,40 @@ export default function PoolButton(props: {
   ])
 
   const {
-    callback: mintCallback
+    callback: mintCallback,
+    state: mintState,
+    tx: mintTx
   } = useMintCallback()
 
   const { isConnected, isConnecting } = useAccount()
 
-  const handleSupply = useCallback(() => {
-    // mintCallback()
-    onModalOpen()
-  }, [mintCallback, onModalOpen])
+  useEffect(() => {
+    if (state !== PoolButtonState.UNKNOWN && !isModalOpen) {
+      onModalOpen()
+    }
+  }, [state, onModalOpen, isModalOpen])
+
+  useEffect(() => {
+    if (state === PoolButtonState.LOADING) {
+      if (mintState === MintState.VALID) {
+        setState(PoolButtonState.SUBMITTED)
+      }
+    }
+  }, [
+    mintState,
+    state
+  ])
+
+  const handleSupply = useCallback(async () => {
+    setState(PoolButtonState.LOADING)
+    await mintCallback()
+
+  }, [mintCallback])
+
+  const handleOnModalClose = useCallback(() => {
+    onModalClose()
+    setState(PoolButtonState.UNKNOWN)
+  }, [onModalClose])
 
   if (!isConnected) {
     return (
@@ -82,6 +110,36 @@ export default function PoolButton(props: {
       </Button>
     )
   }
+
+  if (!token0 || !token1) {
+    return (
+      <Button
+        isDisabled
+        backgroundColor={'bg1'}
+        borderWidth={0}
+        paddingY={3}
+        width={'full'}
+        disabled
+      >
+        <Text>Select a token</Text>
+      </Button>
+    )
+  }
+
+  if (!typedValue) {
+    return (
+      <Button
+        isDisabled
+        backgroundColor={'bg1'}
+        borderWidth={0}
+        paddingY={3}
+        width={'full'}
+      >
+        <Text>Enter an amount</Text>
+      </Button>
+    )
+  }
+
   return (
     <>
       <Button
@@ -94,8 +152,9 @@ export default function PoolButton(props: {
 
       <ModalState
         isOpen={isModalOpen}
-        onClose={onModalClose}
+        onClose={handleOnModalClose}
         state={state}
+        data={mintTx || ''}
       />
     </>
   )

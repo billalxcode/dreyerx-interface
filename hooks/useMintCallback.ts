@@ -15,12 +15,15 @@ export enum MintState {
     UNKNOWN = 'unknown',
     INVALID = 'invalid',
     ERROR = 'error',
-    VALID = 'valid'
+    VALID = 'valid',
+    LOADING = 'loading'
 }
 
 export function useMintCallback() {
     const { address } = useAccount()
     const [state, setState] = useState<MintState>(MintState.UNKNOWN)
+    const [tx, setTx] = useState<string | null>(null)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const {
         token0,
@@ -29,7 +32,7 @@ export function useMintCallback() {
 
     const {
         noLiquidity,
-        parsedAmounts
+        parsedAmounts,
     } = useMintDeliveredInfo(token0, token1)
     const {
         [Field.TOKEN0]: parsedAmount0,
@@ -37,13 +40,13 @@ export function useMintCallback() {
     } = parsedAmounts
 
     const callback = useCallback(async () => {
+        setState(MintState.LOADING)
         if (parsedAmount0 && parsedAmount1 && token0 && token1) {
             const amountsMin = {
                 [Field.TOKEN0]: calculateSlippageAmount(parsedAmount0, noLiquidity ? 0 : 100)[0],
                 [Field.TOKEN1]: calculateSlippageAmount(parsedAmount1, noLiquidity ? 0 : 100)[0]
             }
             const deadlineFromNow = Math.ceil(Date.now() / 1000) + DEFAULT_DEADLINE_FROM_NOW
-            console.log(token0)
             let method, args, value
             if (token0.type === TokenType.NATIVE || token1.type === TokenType.NATIVE) {
                 const token1IsNative = token1.type === TokenType.NATIVE
@@ -71,15 +74,22 @@ export function useMintCallback() {
                 ]
                 value = BigInt(0)
             }
-            console.log(args)
-            const txHash = await writeContract(config, {
-                address: ROUTER_ADDRESS,
-                abi: UniswapV2Router02.abi,
-                functionName: method,
-                args: args,
-                value: value
-            })
-            console.log(txHash)
+
+            try {
+                const txHash = await writeContract(config, {
+                    address: ROUTER_ADDRESS,
+                    abi: UniswapV2Router02.abi,
+                    functionName: method,
+                    args: args,
+                    value: value
+                })
+                setState(MintState.VALID)
+                setTx(txHash)
+            } catch (error) {
+                setState(MintState.ERROR)
+                setErrorMessage(error.reason)
+
+            }
         }
     }, [
         parsedAmount0,
@@ -92,6 +102,11 @@ export function useMintCallback() {
 
     return {
         state,
+        token0,
+        token1,
+        tx,
+        errorMessage,
+        parsedAmounts,
         callback
     }
 }
