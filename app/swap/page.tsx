@@ -88,6 +88,7 @@ export default function Swap() {
                             onUserInput={(value) => onUserInput(Field.INPUT, value)}
                             onSelectToken={(data) => onTokenSelection(Field.INPUT, data)}
                             onMaxInput={handleMaxInput}
+                            key={'currency-input-0'}
                         />
 
                         <Flex alignItems={'center'} px={3} width={'full'}>
@@ -104,6 +105,7 @@ export default function Swap() {
                             balance={outputToken ? BigInt(balanceB) : BigInt(0)}
                             onUserInput={(value) => onUserInput(Field.OUTPUT, value)}
                             onSelectToken={(data) => onTokenSelection(Field.OUTPUT, data)}
+                            key={'currency-input-1'}
                         />
 
                         {

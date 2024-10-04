@@ -44,7 +44,7 @@ export default function CurrencySearch(props: {
             borderColor: transparentize(0.8, border)
           }}
         />
-        <CurrencySearchList scroll={SwapTokenList.tokens.length > 10} key={`currency-search-list-${props.key}`}>
+        <CurrencySearchList scroll={SwapTokenList.tokens.length > 10} key={`currency-search-list-1`}>
           {
             SwapTokenList.tokens.map((tokenlist, index) => {
               return (
