@@ -10,7 +10,7 @@ export default function Header() {
     return (
         <Flex
             flexDirection={'row'}
-            justifyContent={'space-evenly'}
+            justifyContent={['space-between', 'space-evenly']}
             padding={5}
             borderRadius={5}
             borderBottomWidth={1}
@@ -34,6 +34,7 @@ export default function Header() {
                         alt='Logo'
                     />
                     <Text
+                        display={['none', 'block', 'block']}
                         fontWeight={'bold'}
                     >
                         DreyerX Swap

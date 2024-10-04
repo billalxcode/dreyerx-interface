@@ -16,6 +16,7 @@ export default function Button(props: ButtonProps) {
     return (
         <ChakraButton
             width={props.width}
+            size={props.size}
             backgroundColor={props.transparent ? 'transparent' : backgroundColor}
             borderWidth={props.transparent ? 0 : (props.borderWidth ?? 1)}
             borderColor={transparentize(0.9, border)}
