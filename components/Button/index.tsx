@@ -31,6 +31,9 @@ export default function Button(props: ButtonProps) {
             _focusVisible={{
                 cursor: props.isDisabled ? 'auto' : 'pointer',
             }}
+            _loading={{
+                backgroundColor: transparentize(0.3, backgroundColor)
+            }}
 
             onClick={props.onClick}
         >
