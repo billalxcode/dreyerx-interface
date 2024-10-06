@@ -4,6 +4,8 @@ import AppProvider from "./providers";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import { Suspense } from "react";
+import GrainOverlay from "@/components/Overlay/grain";
+import Bloom from "@/components/Bloom";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -37,11 +39,13 @@ export default function RootLayout({
       <body
         className={poppins.className}
       >
-      <Suspense>
-        <AppProvider>
-          { children }
-        </AppProvider>
-      </Suspense>
+        <Suspense>
+          <AppProvider>
+            <GrainOverlay />
+            <Bloom />
+            {children}
+          </AppProvider>
+        </Suspense>
       </body>
     </html>
   );
