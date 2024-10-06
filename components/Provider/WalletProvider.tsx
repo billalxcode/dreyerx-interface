@@ -1,37 +1,45 @@
 'use client'
 
-import React, { ReactNode } from 'react'
-import { config, projectId, metadata } from '@/config/wagmi'
+import { mainnet, networks, projectId, wagmiAdapter } from "@/config/wagmi"
+import { createAppKit, Metadata } from "@reown/appkit/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ReactNode } from "react"
+import { Config, cookieToInitialState, WagmiProvider } from "wagmi"
 
-import { createWeb3Modal } from '@web3modal/wagmi/react'
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
-import { State, WagmiProvider } from 'wagmi'
-
-// Setup queryClient
 const queryClient = new QueryClient()
 
-if (!projectId) throw new Error('Project ID is not defined')
+if (!projectId) {
+    throw new Error('Project ID is not defined')
+}
 
-// Create modal
-createWeb3Modal({
-    metadata,
-    wagmiConfig: config,
+const metadata: Metadata = {
+    name: 'dreyerx-swap',
+    description: 'DreyerX Swap App',
+    url: 'https://swap.dreyerx.com',
+    icons: ['https://storage.dreyerx.com/logo/logo-without-bg.png']
+}
+
+const modal = createAppKit({
+    adapters: [wagmiAdapter],
     projectId,
-    enableAnalytics: true // Optional - defaults to your Cloud configuration
+    networks,
+    defaultNetwork: mainnet,
+    metadata,
+    features: {
+        analytics: true
+    }
 })
 
-export default function AppWalletProvider({
-    children,
-    initialState
-}: {
+export default function AppWalletProvider(props: {
     children: ReactNode
-    initialState?: State
 }) {
+    console.log("App provider")
+    const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config)
     return (
-        <WagmiProvider config={config} initialState={initialState}>
-            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>
+            <QueryClientProvider client={queryClient}>
+                { props.children }
+            </QueryClientProvider>
         </WagmiProvider>
     )
 }

@@ -1,11 +1,11 @@
 import React from 'react'
 import Button from '../Button'
 import { Text } from '@chakra-ui/react'
-import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
+import { useAppKit } from '@reown/appkit/react'
 
 export default function WalletConnectButton() {
-    const { open } = useWeb3Modal()
+    const { open } = useAppKit()
     const { isConnecting } = useAccount()
 
     return (
