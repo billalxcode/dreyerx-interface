@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ModalWrapper } from '../Modal/wrapper'
 import { Flex, Link, Spinner, Text, useToken } from '@chakra-ui/react'
-import { SwapButtonState } from './button'
+import { SwapActionState, SwapButtonState } from './button'
 import { Trade } from '@dreyerxswap/v2-sdk'
 import { transparentize } from 'polished'
 import { FaCircleCheck, FaTriangleExclamation } from 'react-icons/fa6'
@@ -52,7 +52,8 @@ export function ModalTransactionSubmitted(props: {
 
 
 export function ModalTransactionLoading(props: {
-    trade: Trade | null
+    trade: Trade | null,
+    actionState: SwapActionState
 }) {
     const [label, setLabel] = useState<string>('')
 
@@ -63,21 +64,24 @@ export function ModalTransactionLoading(props: {
     const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
 
     useEffect(() => {
-        if (!isWrapToken) {
+        console.log(props.actionState)
+        if (props.actionState == SwapActionState.SWAP) {
             const inputValue = props.trade ? props.trade.inputAmount.toSignificant(6) : '0'
             const inputSymbol = props.trade ? props.trade.inputAmount.currency.symbol : 'UNKNOWN'
             const outputValue = props.trade ? props.trade.outputAmount.toSignificant(6) : '0'
             const outputSymbol = props.trade ? props.trade.outputAmount.currency.symbol : 'UNKNOWN'
 
             setLabel(`Swapping ${inputValue} ${inputSymbol} for ${outputValue} ${outputSymbol}`)
-        } else {
+        } else if (props.actionState === SwapActionState.WRAP) {
             if (wrapType === WrapType.WRAP) {
                 setLabel(`Deposit to WDRX`)
             } else {
                 setLabel(`Withdraw from WDRX`)
             }
+        } else if (props.actionState === SwapActionState.APPROVE) {
+            setLabel(`Approving ${props.trade?.inputAmount.currency.symbol ?? 'UNKNOWN'}`)
         }
-    }, [isWrapToken, props.trade, wrapType])
+    }, [isWrapToken, props.trade, props.actionState, wrapType])
 
     const [text] = useToken('colors', ['text'])
 
@@ -156,11 +160,12 @@ export function ModalStateError(props: {
 
 export function ModalStateRender(props: {
     state: SwapButtonState,
+    actionState: SwapActionState,
     trade: Trade | null,
     data: string | null
 }) {
     if (props.state === SwapButtonState.LOADING) {
-        return <ModalTransactionLoading trade={props.trade} />
+        return <ModalTransactionLoading actionState={props.actionState} trade={props.trade} />
     } else if (props.state === SwapButtonState.SUBMITTED) {
         return <ModalTransactionSubmitted tx={props.data} />
     }
@@ -170,6 +175,7 @@ export function ModalState(props: {
     isOpen: boolean,
     onClose: () => void,
     state: SwapButtonState,
+    actionState: SwapActionState,
     trade: Trade | null,
     data: string | null
 }) {
@@ -186,7 +192,12 @@ export function ModalState(props: {
             onClose={props.onClose}
             title={title}
         >
-            <ModalStateRender state={props.state} trade={props.trade} data={props.data} />
+            <ModalStateRender
+                state={props.state}
+                trade={props.trade}
+                data={props.data}
+                actionState={props.actionState}
+            />
         </ModalWrapper>
     )
 }

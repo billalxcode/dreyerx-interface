@@ -34,7 +34,7 @@ export default function Header() {
                         alt='Logo'
                     />
                     <Text
-                        display={['none', 'block', 'block']}
+                    fontSize={['12px', '14px', '14px']}
                         fontWeight={'bold'}
                     >
                         DreyerX Swap

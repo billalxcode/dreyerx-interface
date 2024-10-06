@@ -5,12 +5,14 @@ export default function Bloom() {
   return (
     <Box
         backgroundColor={'primary1'}
-        width={'20px'}
-        height={'20px'}
+        width={'500px'}
+        height={'500px'}
         position={'absolute'}
-        zIndex={-999999999}
+        zIndex={-1000000}
         opacity={.3}
-        filter={'blur(20px)'}
+        filter={'blur(55px)'}
+        top={'-200px'}
+        left={'-200px'}
         rounded={1000}
     />
   )

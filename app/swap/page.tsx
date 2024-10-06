@@ -39,7 +39,7 @@ export default function Swap() {
     const isWrapToken = wrapType !== WrapType.NOT_APPLICABLE
 
     const {
-        approvalState
+        approvalState,
     } = useApproval(inputToken, address?.toString() ?? undefined, ROUTER_ADDRESS)
 
     const { balance: balanceA } = useAccountBalance(address, inputToken)

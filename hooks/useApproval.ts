@@ -5,10 +5,10 @@ import { writeApproval } from "@/utils/approve";
 import { maxInt256 } from "viem";
 
 export enum ApprovalState {
-    UNKNOWN,
-    NOT_APPROVED,
-    PENDING,
-    APPROVED
+    UNKNOWN = 'unknown',
+    NOT_APPROVED = 'not_approved',
+    PENDING = 'pending',
+    APPROVED = 'approved'
 }
 
 export function useApproval(
@@ -53,13 +53,14 @@ export function useApproval(
     const callback = useCallback(async () => {
         if (typeof token === 'undefined') return null
         if (approvalState !== ApprovalState.NOT_APPROVED) {
+            console.log(approvalState)
             console.error("Approval not required");
             return;
         }
 
         try {
             setPending(true)
-            
+            console.log("Approving")
             await writeApproval(token, spender, maxInt256)
 
             await fetchAllowance()
