@@ -12,6 +12,7 @@ import { SwapCallbackState, useSwapCallback } from '@/hooks/useSwapCallback'
 import { ModalState } from './modals'
 import { useWrapCallback, WrapCallbackState, WrapType } from '@/hooks/useWrapCallback'
 import { ROUTER_ADDRESS } from '@/constants'
+import { ContractFunctionExecutionError } from 'viem'
 
 export enum SwapButtonState {
     UNKNOWN = 'unknown',
@@ -36,7 +37,8 @@ export default function SwapButton(props: {
     const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure()
     const [state, setState] = useState<SwapButtonState>(SwapButtonState.UNKNOWN)
     const [actionState, setActionState] = useState<SwapActionState>(SwapActionState.UNKNOWN)
-
+    const [modalError, setModalError] = useState<string | null>(null)
+    
     const {
         callback: swapCallback,
         state: swapState,
@@ -106,8 +108,15 @@ export default function SwapButton(props: {
     const handleWrap = useCallback(async () => {
         setState(SwapButtonState.LOADING)
         setActionState(SwapActionState.WRAP)
-
-        await wrapCallback()
+        
+        try {
+            await wrapCallback()
+        } catch (error) {
+            if (error instanceof ContractFunctionExecutionError) {
+                setModalError(error.shortMessage)
+                setState(SwapButtonState.ERROR)
+            }
+        }
     }, [wrapCallback])
 
     const handleApprove = useCallback(async () => {
@@ -196,6 +205,7 @@ export default function SwapButton(props: {
                     isOpen={isModalOpen}
                     onClose={handleOnModalClose}
                     actionState={actionState}
+                    reason={modalError}
                     state={state}
                     data={isWrapToken ? wrapTx : swapTx}
                 />
@@ -243,6 +253,7 @@ export default function SwapButton(props: {
                     onClose={handleOnModalClose}
                     actionState={actionState}
                     state={state}
+                    reason={modalError}
                     data={isWrapToken ? wrapTx : swapTx}
                 />
             </>

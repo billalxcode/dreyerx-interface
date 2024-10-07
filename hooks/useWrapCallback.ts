@@ -5,7 +5,7 @@ import { useAccountBalance } from "./useBalance";
 import { useAccount } from "wagmi";
 import { writeContract } from "wagmi/actions";
 import { config } from "@/config/wagmi";
-import { WETH } from "@dreyerxswap/v2-sdk";
+import { JSBI, WETH } from "@dreyerxswap/v2-sdk";
 import WETH_ABI from '@/constants/abis/weth.json'
 
 export enum WrapType {
@@ -33,24 +33,19 @@ export function useWrapCallback() {
     const { balance } = useAccountBalance(address, inputToken)
 
     const inputAmount = useMemo(() => tryParseAmount(typedValue, inputToken), [typedValue, inputToken])
-    const sufficientBalance = inputAmount && balance
-    
+    const sufficientBalance = inputAmount && balance && inputAmount.lessThan(balance.toString())
+
     const depositCallback = useCallback(async () => {
         if (sufficientBalance && inputAmount && balance) {
-            try {
-                const txHash = await writeContract(config, {
-                    address: WETH[23451].address as `0x${string}`,
-                    abi: WETH_ABI,
-                    functionName: 'deposit',
-                    value: BigInt(inputAmount.raw.toString())
-                })
-                console.log(txHash)
-                setTx(txHash)
-                setState(WrapCallbackState.SUBMITTED)
-            } catch (error) {
-                setState(WrapCallbackState.INVALID)
-                console.log("Could not deposit")
-            }
+            const txHash = await writeContract(config, {
+                address: WETH[23451].address as `0x${string}`,
+                abi: WETH_ABI,
+                functionName: 'deposit',
+                value: BigInt(inputAmount.raw.toString())
+            })
+            console.log(txHash)
+            setTx(txHash)
+            setState(WrapCallbackState.SUBMITTED)
         } else {
             setState(WrapCallbackState.INVALID)
             setErrorMessage("Insufficient DRX Balance")
@@ -59,21 +54,15 @@ export function useWrapCallback() {
 
     const withdrawCallback = useCallback(async () => {
         if (sufficientBalance && inputAmount && balance) {
-            try {
-                const txHash = await writeContract(config, {
-                    address: WETH[23451].address as `0x${string}`,
-                    abi: WETH_ABI,
-                    functionName: 'withdraw',
-                    args: [BigInt(inputAmount.raw.toString())]
-                })
-                console.log(txHash)
-                setTx(txHash)
-                setState(WrapCallbackState.SUBMITTED)
-            } catch (error) {
-                console.log("Could not withdraw", error)
-                setState(WrapCallbackState.INVALID)
-
-            }
+            const txHash = await writeContract(config, {
+                address: WETH[23451].address as `0x${string}`,
+                abi: WETH_ABI,
+                functionName: 'withdraw',
+                args: [BigInt(inputAmount.raw.toString())]
+            })
+            console.log(txHash)
+            setTx(txHash)
+            setState(WrapCallbackState.SUBMITTED)
         } else {
             setErrorMessage("Insufficient WDRX Balance")
             setState(WrapCallbackState.INVALID)
@@ -81,6 +70,13 @@ export function useWrapCallback() {
     }, [inputAmount, balance, sufficientBalance])
 
     useEffect(() => {
+        if (inputAmount && JSBI.greaterThan(inputAmount.raw, JSBI.BigInt(balance.toString()))) {
+            setErrorMessage(`Insufficient ${wrapType === WrapType.WRAP ? 'DRX' : 'WDRX'} Balance`)
+        } else {
+            setErrorMessage('')
+        }
+
+
         if (inputToken?.type === TokenType.NATIVE && outputToken?.address === WETH[23451].address) {
             setWrapType(WrapType.WRAP)
         } else if (inputToken?.address === WETH[23451].address && outputToken?.type === TokenType.NATIVE) {
@@ -88,8 +84,7 @@ export function useWrapCallback() {
         } else {
             setWrapType(WrapType.NOT_APPLICABLE)
         }
-    }, [inputToken, outputToken])
-
+    }, [inputToken, outputToken, inputAmount, balance, wrapType])
 
     return {
         wrapType,

@@ -125,8 +125,8 @@ export function ModalTransactionLoading(props: {
     )
 }
 
-export function ModalStateError(props: {
-    reason: string
+export function ModalTransactionError(props: {
+    reason: string | null
 }) {
     const [bgError] = useToken('colors', ['alert.error.background'])
 
@@ -151,7 +151,7 @@ export function ModalStateError(props: {
                     fontWeight={'semibold'}
                     fontSize={'14px'}
                 >
-                    {props.reason}
+                    {props.reason ?? "Unknown Error"}
                 </Text>
             </Flex>
         </Flex>
@@ -162,12 +162,15 @@ export function ModalStateRender(props: {
     state: SwapButtonState,
     actionState: SwapActionState,
     trade: Trade | null,
-    data: string | null
+    data: string | null,
+    reason: string | null
 }) {
     if (props.state === SwapButtonState.LOADING) {
         return <ModalTransactionLoading actionState={props.actionState} trade={props.trade} />
     } else if (props.state === SwapButtonState.SUBMITTED) {
         return <ModalTransactionSubmitted tx={props.data} />
+    } else if (props.state === SwapButtonState.ERROR) {
+        return <ModalTransactionError reason={props.reason} />
     }
 }
 
@@ -177,7 +180,8 @@ export function ModalState(props: {
     state: SwapButtonState,
     actionState: SwapActionState,
     trade: Trade | null,
-    data: string | null
+    data: string | null,
+    reason: string | null
 }) {
     const title = props.state === SwapButtonState.LOADING
         ? "Please wait"
@@ -197,6 +201,7 @@ export function ModalState(props: {
                 trade={props.trade}
                 data={props.data}
                 actionState={props.actionState}
+                reason={props.reason}
             />
         </ModalWrapper>
     )
