@@ -102,7 +102,14 @@ export default function SwapButton(props: {
         setState(SwapButtonState.LOADING)
         setActionState(SwapActionState.SWAP)
 
-        await swapCallback()
+        try {
+            await swapCallback()
+        } catch (error) {
+            if (error instanceof ContractFunctionExecutionError) {
+                setModalError(error.shortMessage)
+                setState(SwapButtonState.ERROR)
+            }
+        }
     }, [swapCallback])
 
     const handleWrap = useCallback(async () => {
