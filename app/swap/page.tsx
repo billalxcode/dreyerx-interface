@@ -64,10 +64,9 @@ export default function Swap() {
     return (
         <Flex
             flexDirection={'column'}
-            height={'100vh'}
         >
             <Header />
-
+            
             <Wrapper>
                 <Flex
                     flexDirection={'column'}
