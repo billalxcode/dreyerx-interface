@@ -26,14 +26,14 @@ const modal = createAppKit({
     defaultNetwork: mainnet,
     metadata,
     features: {
-        analytics: true
+        analytics: false,
+        swaps: false
     }
 })
 
 export default function AppWalletProvider(props: {
     children: ReactNode
 }) {
-    console.log("App provider")
     const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig as Config)
     return (
         <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>

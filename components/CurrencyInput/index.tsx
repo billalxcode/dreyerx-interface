@@ -35,8 +35,9 @@ export default function CurrencyInput(props: {
     )
 
     const label = props.field === Field.INPUT
-        ? (pathname === '/swap' ? "You are selling" : pathname === '/wrap' ? "You are wrapping" : "You're Selling")
-        : (pathname === '/swap' ? "You are buying" : pathname === '/wrap' ? "You are receiving" : "You're Buying")
+        ? (pathname === '/swap' ? "You pay" : pathname === '/wrap' ? "You wrap" : pathname === "/pool/new" ? "Input" : "You pay")
+        : (pathname === '/swap' ? "You receive" : pathname === '/wrap' ? "You receive" : pathname === "/pool/new" ? "Input" : "YOu receive")
+
 
     useEffect(() => {
         setToken(props.token)
