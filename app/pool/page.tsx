@@ -1,6 +1,7 @@
 'use client'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import PoolTable from '@/components/Pool/table'
 import Wrapper from '@/components/Pool/wrapper'
@@ -14,6 +15,7 @@ export default function Pool() {
     return (
         <Flex
             flexDirection={'column'}
+            height={'100vh'}
         >
             <Header />
 
@@ -50,6 +52,8 @@ export default function Pool() {
 
                         <PoolTable />
                     </Card>
+
+                    <Footer />
                 </Flex>
             </Wrapper>
         </Flex>

@@ -7,6 +7,7 @@ export default function Wrapper(props: {
   return (
     <Flex
         width={'full'}
+        // height={'100vh'}
         flexDirection={'column'}
         align={'center'}
         marginTop={10}

@@ -20,7 +20,7 @@ export default function Card(props: CardProps) {
             borderColor={transparentize(0.9, border)}
             borderRadius={10}
             boxShadow={'3px 3px 13px -10px #7a22c9'}
-            >
+        >
             {props.children}
         </Flex>
     )

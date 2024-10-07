@@ -21,6 +21,7 @@ import { ROUTER_ADDRESS } from '@/constants';
 import { useAccountBalance } from '@/hooks/useBalance';
 import { useWrapCallback, WrapType } from '@/hooks/useWrapCallback';
 import { maxAmountSpend } from '@/utils/maxAmountSpend';
+import Footer from '@/components/Footer';
 
 export default function Swap() {
     const {
@@ -63,6 +64,7 @@ export default function Swap() {
     return (
         <Flex
             flexDirection={'column'}
+            height={'100vh'}
         >
             <Header />
 
@@ -124,8 +126,11 @@ export default function Swap() {
                             <SwapInfo trade={trade} />
                         ) : null
                     }
+                    <Footer />
                 </Flex>
             </Wrapper>
+
         </Flex>
+
     );
 }

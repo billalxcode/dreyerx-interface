@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertIcon, Divider, Flex, Icon } from '@chakra
 import { useRouter } from 'next/navigation'
 import { FaArrowDown } from 'react-icons/fa6'
 import { formatUnits } from 'viem'
+import Footer from '@/components/Footer'
 
 export default function NewPool() {
   const router = useRouter()
@@ -81,6 +82,7 @@ export default function NewPool() {
   return (
     <Flex
       flexDirection={'column'}
+      height={'100vh'}
     >
       <Header />
 
@@ -145,7 +147,9 @@ export default function NewPool() {
             />
 
             <PoolButton poolState={poolState} errorMessage={errorMessage} />
+
           </Card>
+          <Footer />
         </Flex>
       </Wrapper>
     </Flex>

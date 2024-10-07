@@ -123,7 +123,7 @@ export default function CurrencyInput(props: {
             </CurrencyWrapper>
 
             <CurrencySearch
-                key={`currency-search-${label.trim()}`}
+                key={`currency-search`}
                 isOpen={isOpen}
                 onClose={onClose}
                 onSelect={onSelectToken}

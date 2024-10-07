@@ -5,8 +5,8 @@ export default function Bloom() {
   return (
     <Box
         backgroundColor={'primary1'}
-        width={'500px'}
-        height={'500px'}
+        width={'400px'}
+        height={'400px'}
         position={'absolute'}
         zIndex={-1000000}
         opacity={.3}
